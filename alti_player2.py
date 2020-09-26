@@ -39,20 +39,27 @@ VIDEO_PATH = Path("UPP_NER_2.mp4")
 player = OMXPlayer(VIDEO_PATH, args=['--no-osd'])
 
 #how long we should wait between checking the sensor value
-interval = 1000
-#how many miliseconds we should play each section for
+interval = 1
 
 #how many seconds of video we should leave
 margin = 5 
 
 #get playback rate from arguments
 rate = float(sys.argv[1])
-starting_pos = float(sys.argv[2])
-play_time = float(sys.argv[3])
+
+starting_pos = int(sys.argv[2])
+play_time = int(sys.argv[3])
 
 print('rate', rate)
+print('starting_pos', starting_pos)
+print('play_time', play_time)
 
+sleep(1)
+
+player.set_rate(rate)
 player.set_position(starting_pos)
+sleep(1)
+player.pause()
 
 def play_video(p, sensor, pos, d, r):
     if d == 'UP':
@@ -62,11 +69,11 @@ def play_video(p, sensor, pos, d, r):
     #we shouldnt play longer the video - the margin
     if(pos < t - margin - interval / 1000):
         p.play()
-        YAPI.Sleep(int(play_time))
+        sleep(play_time)
         p.pause()
     elif t - margin - pos > 0:
         p.play()
-        YAPI.Sleep(int(t - margin - pos))
+        sleep(int(t - margin - pos))
         p.pause()
 
 def run_altiplayer(p, sensor, r, interval):
@@ -76,7 +83,7 @@ def run_altiplayer(p, sensor, r, interval):
     print('prev', prev)
     last_direction = 'UP'
 
-    YAPI.Sleep(interval)
+    sleep(interval)
 
     while sensor.isOnline():
         print('new iteration')
@@ -114,7 +121,7 @@ def run_altiplayer(p, sensor, r, interval):
             print('still')
 
         prev = sensor.get_currentValue()
-        YAPI.Sleep(interval)
+        sleep(interval)
 
 try:
     run_altiplayer(player, altSensor, rate, interval)
