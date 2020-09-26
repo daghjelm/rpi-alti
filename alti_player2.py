@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 import os, sys
+import math
 
 # add ../../Sources to the PYTHONPATH
 sys.path.append(os.path.join("..", "..", "Sources"))
@@ -31,18 +32,19 @@ target = m.get_serialNumber()
 altSensor = YAltitude.FindAltitude(target + '.altitude')
 
 #Length of the video in seconds 
-FULL_TIME = 238.5
-HALF_TIME = FULL_TIME / 2
 
 #init video in omx
 VIDEO_PATH = Path("UPP_NER_2.mp4")
 player = OMXPlayer(VIDEO_PATH, args=['--no-osd'])
 
+FULL_TIME = 238
+HALF_TIME = FULL_TIME / 2
+
 #how long we should wait between checking the sensor value
 interval = 1
 
 #how many seconds of video we should leave
-margin = 5 
+margin = 10
 
 #get playback rate from arguments
 rate = float(sys.argv[1])
@@ -60,6 +62,7 @@ player.set_rate(rate)
 player.set_position(starting_pos)
 sleep(1)
 player.pause()
+print('duration', player.duration())
 
 def play_video(p, sensor, pos, d, r):
     if d == 'UP':
@@ -81,21 +84,19 @@ def run_altiplayer(p, sensor, r, interval):
     #get first value()
     prev = sensor.get_currentValue()
     print('prev', prev)
-    last_direction = 'UP'
 
     sleep(interval)
 
     while sensor.isOnline():
-        print('new iteration')
         pos = p.position()
         current = sensor.get_currentValue()
-        print('current', current)
         #sensor is moving up
         if current - prev > 0.15:
-            if last_direction == 'DOWN':
+            if pos > HALF_TIME:
+                print('pos b4 going up', pos)
                 pos = FULL_TIME - pos
-                p.set_position(pos)
-                last_direction = 'UP'
+                print('pos going up', pos)
+                p.set_position((pos + 2))
             try:
                 print('trying to go up')
                 play_video(p, sensor, pos, 'UP', r)
@@ -105,10 +106,11 @@ def run_altiplayer(p, sensor, r, interval):
                 print(e)
         #sensor if moving down
         elif current - prev < -0.15:
-            if last_direction == 'UP':
+            if pos < HALF_TIME:
+                print('pos b4 going down', pos)
                 pos = FULL_TIME - pos
-                p.set_position(pos)
-                last_direction = 'DOWN'
+                print('pos going down', pos)
+                p.set_position(pos + 0.5)
             try:
                 print('trying to go down')
                 play_video(p, sensor, pos, 'DOWN', r)
