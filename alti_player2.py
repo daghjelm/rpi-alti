@@ -11,6 +11,7 @@ from yoctopuce.yocto_altitude import *
 from omxplayer.player import OMXPlayer
 from pathlib import Path
 from time import sleep
+from decimal import Decimal
 import sys
 
 def die(msg):
@@ -34,11 +35,11 @@ altSensor = YAltitude.FindAltitude(target + '.altitude')
 #Length of the video in seconds 
 
 #init video in omx
-VIDEO_PATH = Path("UPP_NER_2.mp4")
+VIDEO_PATH = Path("../../Videos/UPP_NER_2.mp4")
 player = OMXPlayer(VIDEO_PATH, args=['--no-osd'])
 
-FULL_TIME = 238
-HALF_TIME = FULL_TIME / 2
+FULL_TIME = Decimal(player.duration())
+HALF_TIME = FULL_TIME / Decimal(2)
 
 #how long we should wait between checking the sensor value
 interval = 1
@@ -66,9 +67,10 @@ print('duration', player.duration())
 
 def play_video(p, sensor, pos, d, r):
     if d == 'UP':
-        t = HALF_TIME
+        t = float(HALF_TIME)
     else:
-        t = FULL_TIME
+        t = float(FULL_TIME)
+
     #we shouldnt play longer the video - the margin
     if(pos < t - margin - interval / 1000):
         p.play()
@@ -81,14 +83,15 @@ def play_video(p, sensor, pos, d, r):
 
 def run_altiplayer(p, sensor, r, interval):
     pos = p.position()
-    #get first value()
+
+    #get first value
     prev = sensor.get_currentValue()
     print('prev', prev)
 
     sleep(interval)
 
     while sensor.isOnline():
-        pos = p.position()
+        pos = Decimal(p.position())
         current = sensor.get_currentValue()
         #sensor is moving up
         if current - prev > 0.15:
@@ -96,13 +99,17 @@ def run_altiplayer(p, sensor, r, interval):
                 print('pos b4 going up', pos)
                 pos = FULL_TIME - pos
                 print('pos going up', pos)
-                p.set_position((pos + 2))
+                print('pos going up float', float(pos))
+                print('pos going up float round', round(float(pos), 3))
+                p.set_position(round(float(pos), 3))
+                print('pos going up 2', p.position())
             try:
                 print('trying to go up')
                 play_video(p, sensor, pos, 'UP', r)
                 print('after')
             except Exception as e:
                 print('error')
+                print('111')
                 print(e)
         #sensor if moving down
         elif current - prev < -0.15:
@@ -110,13 +117,17 @@ def run_altiplayer(p, sensor, r, interval):
                 print('pos b4 going down', pos)
                 pos = FULL_TIME - pos
                 print('pos going down', pos)
-                p.set_position(pos + 0.5)
+                print('pos going down float', float(pos))
+                print('pos going down float round', round(float(pos), 3))
+                p.set_position(round(float(pos), 3))
+                print('pos going down 2', p.position())
             try:
                 print('trying to go down')
                 play_video(p, sensor, pos, 'DOWN', r)
                 print('after')
             except Exception as e:
                 print('error')
+                print('126')
                 print(e)
         #sensor is still
         else:
