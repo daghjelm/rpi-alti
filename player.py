@@ -14,8 +14,8 @@ class Player():
         self.full_time = player.duration()
         self.half_time = self.full_time / 2
     
-    # def get_sleep_time(self, pos, duration):
-
+    def get_adjusted_duration(self, pos, duration):
+        return duration + (1 - pos % 1)
 
     def play_video(self, pos, up, duration):
         end_time = self.half_time if up else self.full_time
@@ -50,7 +50,8 @@ class Player():
                     pos = self.full_time - pos
                     player.set_position(pos)
                 try:
-                    self.play_video(pos, True, play_time)
+                    adjusted = self.get_adjusted_duration(pos, play_time)
+                    self.play_video(pos, True, adjusted)
                 except Exception as e:
                     print(e)
             #sensor if moving down
@@ -60,6 +61,7 @@ class Player():
                     pos = self.full_time - pos
                     player.set_position(pos)
                 try:
+                    adjusted = self.get_adjusted_duration(pos, play_time)
                     self.play_video(pos, False, play_time)
                 except Exception as e:
                     print(e)
