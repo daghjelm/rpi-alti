@@ -17,8 +17,7 @@ import player
 
 # add ../../Sources to the PYTHONPATH
 sys.path.append(os.path.join("..", "..", "Sources"))
-VIDEO_PATH = Path("../../Videos/UPP_NER_2.mp4")
-
+DEFAULT_VIDEO_PATH = Path("../../Videos/UPP_NER_2.mp4")
 
 def die(msg):
    sys.exit(msg + ' (check USB cable)')
@@ -29,6 +28,7 @@ def set_start_rate_and_pos(p, rate, pos, default_rate, default_pos):
 
 def main():
     parser = argparse.ArgumentParser(description='Enter optional commands for player')
+    parser.add_argument("--video_path", default=DEFAULT_VIDEO_PATH, help='path to the video that is to be played', type=str)
     parser.add_argument("-r", "--rate", default=1,
          help="set playback rate", type=float)
     parser.add_argument("-s", "--starting_pos", default=0,
@@ -42,7 +42,7 @@ def main():
 
     args = parser.parse_args()
 
-    video_player = OMXPlayer(VIDEO_PATH, args=['--no-osd'])
+    video_player = OMXPlayer(args.video_path, args=['--no-osd'])
 
     #get playback rate from arguments
     errmsg = YRefParam()
