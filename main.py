@@ -22,17 +22,28 @@ VIDEO_PATH = Path("../../Videos/UPP_NER_2.mp4")
 def die(msg):
    sys.exit(msg + ' (check USB cable)')
 
+def set_start_rate_and_pos(p, rate, pos, default_rate, default_pos):
+    p.set_rate(rate) if rate else p.set_rate(default_rate)
+    p.set_position(pos) if pos else p.set_position(default_pos)
+
 def main():
     video_player = OMXPlayer(VIDEO_PATH, args=['--no-osd'])
+
     #how long we should wait between checking the sensor value
+    interval = 1
+
+    #how long to play each iteration
+    play_time = int(sys.argv[3])
+    if (not play_time):
+        play_time = 10
+
     #how many seconds of video we should leave
     margin = 10
     #get playback rate from arguments
     errmsg = YRefParam()
-    #get rate and starting posistion from args
-    video_player.set_rate(float(sys.argv[1]))
-    video_player.set_position(int(sys.argv[2]))
-    play_time = int(sys.argv[3])
+
+    #set rate and position from arguments
+    set_start_rate_and_pos(video_player, float(sys.argv[1]), int(sys.argv[2]), 1, 0)
 
     # Setup the API to use local USB devices
     if YAPI.RegisterHub("usb", errmsg) != YAPI.SUCCESS:
@@ -47,11 +58,11 @@ def main():
 
     altSensor = YAltitude.FindAltitude(target + '.altitude')
 
-    alti_player = player.Player(video_player, sensor, 10)
+    alti_player = player.Player(video_player, altSensor, margin)
 
     #init video in omx
     try:
-        alti_player.run(10, 1)
+        alti_player.run(play_time, interval)
     except Exception as e:
         print(e)
         YAPI.FreeAPI()
