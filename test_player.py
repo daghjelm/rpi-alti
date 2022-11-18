@@ -26,5 +26,5 @@ target = m.get_serialNumber()
 altSensor = YAltitude.FindAltitude(target + '.altitude')
 
 while sensor.isOnline():
-    print(altSensor.getCurrentValue())
-    YAPI.sleep(1000)
+    print(altSensor.get_currentValue())
+    YAPI.Sleep(1000)
