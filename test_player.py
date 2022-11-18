@@ -1,13 +1,11 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 import os, sys
+from yoctopuce.yocto_api import *
+from yoctopuce.yocto_altitude import *
 
 # add ../../Sources to the PYTHONPATH
 sys.path.append(os.path.join("..", "..", "Sources"))
-
-from yoctopuce.yocto_api import *
-from yoctopuce.yocto_altitude import *
-import sys
 
 def die(msg):
     sys.exit(msg + ' (check USB cable)')
