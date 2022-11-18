@@ -3,6 +3,7 @@
 import os, sys
 import math
 import sys
+import argparse
 from time import sleep
 from pathlib import Path
 
@@ -27,23 +28,24 @@ def set_start_rate_and_pos(p, rate, pos, default_rate, default_pos):
     p.set_position(pos) if pos else p.set_position(default_pos)
 
 def main():
+    parser = argparse.ArgumentParser(description='Enter optional commands for player')
+    parser.add_argument("-r", "--rate", default=1,
+         help="set playback rate", type=float)
+    parser.add_argument("-s", "--starting_pos", default=0,
+        help="set the starting position of the video to be played", type=int)
+    parser.add_argument("-p", "--play_time", default=10,
+        help="set how long the video is to be played before checking for movement again", type=int)
+    parser.add_argument("-m", "--margin", default=10,
+        help="set how much time we should leave in the video before the end", type=int)
+    parser.add_argument("-i", "--interval", default=1,
+        help="set how much time we should leave in the video before the end", type=int)
+
+    args = parser.parse_args()
+
     video_player = OMXPlayer(VIDEO_PATH, args=['--no-osd'])
 
-    #how long we should wait between checking the sensor value
-    interval = 1
-
-    #how long to play each iteration
-    play_time = int(sys.argv[3])
-    if (not play_time):
-        play_time = 10
-
-    #how many seconds of video we should leave
-    margin = 10
     #get playback rate from arguments
     errmsg = YRefParam()
-
-    #set rate and position from arguments
-    set_start_rate_and_pos(video_player, float(sys.argv[1]), int(sys.argv[2]), 1, 0)
 
     # Setup the API to use local USB devices
     if YAPI.RegisterHub("usb", errmsg) != YAPI.SUCCESS:
@@ -58,11 +60,11 @@ def main():
 
     altSensor = YAltitude.FindAltitude(target + '.altitude')
 
-    alti_player = player.Player(video_player, altSensor, margin)
+    alti_player = player.Player(video_player, altSensor, args.margin)
 
     #init video in omx
     try:
-        alti_player.run(play_time, interval)
+        alti_player.run(args.play_time, args.interval)
     except Exception as e:
         print(e)
         YAPI.FreeAPI()
