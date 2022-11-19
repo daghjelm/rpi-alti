@@ -36,7 +36,8 @@ def main():
 
     args = parser.parse_args()
 
-    subprocess.run(["export", "DISPLAY=:0"])
+    #subprocess.run(["export", "DISPLAY=:0"])
+    os.system("export DISPLAY=:0")
 
     # video_player = OMXPlayer(args.video_path, args=['--no-osd'])
     video_player = vlc.MediaPlayer(args.video_path)
