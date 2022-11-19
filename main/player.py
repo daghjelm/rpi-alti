@@ -21,7 +21,7 @@ class Player():
     def play_video(self, pos, up, duration):
         end_time = self.half_time if up else self.full_time
         #we shouldn't play longer than the video - the margin
-        if(pos < end_time - self.margin - duration / 1000):
+        if pos < end_time - self.margin - duration:
             self.player.play()
             YAPI.Sleep(duration)
             self.player.pause()
@@ -51,15 +51,10 @@ class Player():
             #sensor is moving up
             if current - prev > diff:
                 print('up')
-                if pos > self.full_time: #changed direction
+                if pos > self.half_time: #changed direction
                     pos = self.full_time - pos
                     player.set_time(pos)
                 try:
-                    # print('pos:', pos)
-                    # adjusted = self.get_adjusted_duration(pos, play_time)
-                    # print('adjusted:', adjusted)
-                    # print('adjusted + pos:', adjusted + pos)
-                    # adjusted = self.get_adjusted_duration(pos, play_time)
                     self.play_video(pos, True, play_time)
                 except Exception as e:
                     print(e)
