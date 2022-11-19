@@ -41,6 +41,7 @@ class Player():
 
         player.play()
         sleep(interval)
+        player.stop()
 
         while sensor.isOnline():
             pos = player.get_time()
