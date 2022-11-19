@@ -40,14 +40,15 @@ class Player():
         prev = sensor.get_currentValue()
 
         player.play()
-        sleep(interval)
-        player.stop()
+        sleep(2)
+        player.pause()
 
         while sensor.isOnline():
             pos = player.get_time()
             current = sensor.get_currentValue()
             #sensor is moving up
             if current - prev > diff:
+                print('one')
                 if pos > self.full_time: #changed direction
                     pos = self.full_time - pos
                     player.set_time(pos)
@@ -58,6 +59,7 @@ class Player():
                     print(e)
             #sensor if moving down
             elif current - prev < (- diff):
+                print('two')
                 if pos < self.half_time: #means we changed direction
                     #calculate new position
                     pos = self.full_time - pos
