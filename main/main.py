@@ -41,10 +41,13 @@ def main():
 
     # video_player = OMXPlayer(args.video_path, args=['--no-osd'])
     video_player = vlc.MediaPlayer(args.video_path)
+    time.sleep(1)
     video_player.set_fullscreen(True)
+    time.sleep(1)
 
     # video_player.set_rate(args.rate)
     video_player.set_time(args.starting_pos)
+    time.sleep(1)
 
     #get playback rate from arguments
     errmsg = YRefParam()
