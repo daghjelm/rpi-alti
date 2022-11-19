@@ -68,6 +68,7 @@ def main():
     try:
         alti_player.run(args.play_time, args.interval)
     except Exception as e:
+        print('exception caught')
         print(e)
         YAPI.FreeAPI()
         video_player.stop()
