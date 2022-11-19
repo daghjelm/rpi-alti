@@ -43,7 +43,7 @@ def main():
     video_player = vlc.MediaPlayer(args.video_path)
     video_player.set_fullscreen(True)
 
-    video_player.set_rate(args.rate)
+    # video_player.set_rate(args.rate)
     video_player.set_time(args.starting_pos)
 
     #get playback rate from arguments
