@@ -11,7 +11,7 @@ import vlc
 from yoctopuce.yocto_api import *
 from yoctopuce.yocto_altitude import *
 
-import player
+import main.player as player
 
 # add ../../Sources to the PYTHONPATH
 sys.path.append(os.path.join("..", "..", "Sources"))
