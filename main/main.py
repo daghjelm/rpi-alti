@@ -1,8 +1,6 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-import os, sys
-import sys
-import argparse
+import os, sys, argparse, subprocess
 from time import sleep
 from pathlib import Path
 import vlc
@@ -37,6 +35,8 @@ def main():
         help="set how much time we should leave in the video before the end", type=int)
 
     args = parser.parse_args()
+
+    subprocess.run(["export", "DISPLAY=:0"])
 
     # video_player = OMXPlayer(args.video_path, args=['--no-osd'])
     video_player = vlc.MediaPlayer(args.video_path)
