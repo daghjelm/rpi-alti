@@ -11,7 +11,7 @@ class Player():
         self.sensor = sensor
         self.margin = margin
 
-        self.full_time = player.duration()
+        self.full_time = player.get_length()
         self.half_time = self.full_time / 2
     
     def get_adjusted_duration(self, pos, duration):
@@ -33,7 +33,7 @@ class Player():
     def run(self, play_time, interval):
         sensor = self.sensor
         player = self.player
-        pos = player.position()
+        pos = player.get_time()
         diff = 0.15
 
         #get first value
@@ -42,13 +42,13 @@ class Player():
         sleep(interval)
 
         while sensor.isOnline():
-            pos = player.position()
+            pos = player.get_time()
             current = sensor.get_currentValue()
             #sensor is moving up
             if current - prev > diff:
                 if pos > self.full_time: #changed direction
                     pos = self.full_time - pos
-                    player.set_position(pos)
+                    player.set_time(pos)
                 try:
                     adjusted = self.get_adjusted_duration(pos, play_time)
                     self.play_video(pos, True, adjusted)
@@ -59,7 +59,7 @@ class Player():
                 if pos < self.half_time: #means we changed direction
                     #calculate new position
                     pos = self.full_time - pos
-                    player.set_position(pos)
+                    player.set_time(pos)
                 try:
                     adjusted = self.get_adjusted_duration(pos, play_time)
                     self.play_video(pos, False, play_time)

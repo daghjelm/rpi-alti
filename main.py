@@ -1,23 +1,21 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 import os, sys
-import math
 import sys
 import argparse
 from time import sleep
 from pathlib import Path
+import vlc
 
 #yoctopuce api
 from yoctopuce.yocto_api import *
 from yoctopuce.yocto_altitude import *
-#omx player wrapper
-from omxplayer.player import OMXPlayer
 
 import player
 
 # add ../../Sources to the PYTHONPATH
 sys.path.append(os.path.join("..", "..", "Sources"))
-DEFAULT_VIDEO_PATH = Path("../../Videos/UPP_NER_2.mp4")
+DEFAULT_VIDEO_PATH = Path("/home/computemodule/Desktop/UPP_NER_2.mp4")
 
 def die(msg):
    sys.exit(msg + ' (check USB cable)')
@@ -27,6 +25,7 @@ def set_start_rate_and_pos(p, rate, pos, default_rate, default_pos):
     p.set_position(pos) if pos else p.set_position(default_pos)
 
 def main():
+    #user arguments
     parser = argparse.ArgumentParser(description='Enter optional commands for player')
     parser.add_argument("--video_path", default=DEFAULT_VIDEO_PATH, help='path to the video that is to be played', type=str)
     parser.add_argument("-r", "--rate", default=1,
@@ -42,7 +41,9 @@ def main():
 
     args = parser.parse_args()
 
-    video_player = OMXPlayer(args.video_path, args=['--no-osd'])
+    # video_player = OMXPlayer(args.video_path, args=['--no-osd'])
+    video_player = vlc.MediaPlayer(args.video_path)
+    video_player.set_fullscreen(True)
 
     #get playback rate from arguments
     errmsg = YRefParam()
@@ -68,7 +69,7 @@ def main():
     except Exception as e:
         print(e)
         YAPI.FreeAPI()
-        player.quit()
+        video_player.stop()
         os.execv(sys.executable, ['python3'] + sys.argv)
 
     YAPI.FreeAPI()
