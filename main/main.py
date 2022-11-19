@@ -20,10 +20,6 @@ DEFAULT_VIDEO_PATH = Path("/home/computemodule/Desktop/UPP_NER_2.mp4")
 def die(msg):
    sys.exit(msg + ' (check USB cable)')
 
-def set_start_rate_and_pos(p, rate, pos, default_rate, default_pos):
-    p.set_rate(rate) if rate else p.set_rate(default_rate)
-    p.set_position(pos) if pos else p.set_position(default_pos)
-
 def main():
     #user arguments
     parser = argparse.ArgumentParser(description='Enter optional commands for player')
@@ -44,6 +40,9 @@ def main():
     # video_player = OMXPlayer(args.video_path, args=['--no-osd'])
     video_player = vlc.MediaPlayer(args.video_path)
     video_player.set_fullscreen(True)
+
+    video_player.set_rate(args.rate)
+    video_player.set_time(args.starting_pos)
 
     #get playback rate from arguments
     errmsg = YRefParam()

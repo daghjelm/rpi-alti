@@ -39,6 +39,7 @@ class Player():
         #get first value
         prev = sensor.get_currentValue()
 
+        player.play()
         sleep(interval)
 
         while sensor.isOnline():
