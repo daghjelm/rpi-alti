@@ -28,7 +28,7 @@ class Player():
         #this is if sleeping the duration will put us past end - margin
         elif end_time - self.margin - pos > 0:
             self.player.play()
-            sleep(end_time - self.margin - pos)
+            YAPI.Sleep(end_time - self.margin - pos)
             self.player.pause()
 
     def run(self, play_time, interval):
@@ -42,7 +42,7 @@ class Player():
         prev = sensor.get_currentValue()
 
         player.play()
-        sleep(0.5)
+        sleep(2)
         player.pause()
 
         while sensor.isOnline():
