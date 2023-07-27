@@ -24,7 +24,8 @@ Set permissions for usb devices by creating a file in `/etc/udev/rules.d`
 create a file on the form ##-name.rules, ex: `vim 98-usbperm.rules`
 Add this on one line: 
 ```
-# udev rules to allow write access to all users for Yoctopuce USB devices SUBSYSTEM=="usb", ATTR{idVendor}=="24e0", MODE="0666" 
+# udev rules to allow write access to all users for Yoctopuce USB devices
+SUBSYSTEM=="usb", ATTR{idVendor}=="24e0", MODE="0666" 
 ```
 Save and restart the pi: `sudo reboot`
 
