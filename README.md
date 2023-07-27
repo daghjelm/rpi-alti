@@ -9,7 +9,7 @@ Assuming to you have python3 installed.
 Install vlc, for raspbian: `apt-get install vlc`
 
 I recommend to create a venv:
-Create a venv with `python3 -m venve .venv`, and source `source path/to/.venv`
+Create a venv with `python3 -m venv .venv`, and source `source path/to/.venv`
 
 Install packages from requirements.txt
 `pip3 install -r requirements.txt`
