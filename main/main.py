@@ -16,13 +16,16 @@ import player
 sys.path.append(os.path.join("..", "..", "Sources"))
 DEFAULT_VIDEO_PATH = Path("/home/computemodule/Desktop/UPP_NER_2.mp4")
 
+def tilde_path(pathstr):
+    if pathstr[0] == "~":
+        return os.path.expanduser(pathstr)
+    return pathstr
+
 def die(msg):
    sys.exit(msg + ' (check USB cable)')
 
-def main():
-    #user arguments
-    parser = argparse.ArgumentParser(description='Enter optional commands for player')
-    parser.add_argument("--video_path", default=DEFAULT_VIDEO_PATH, help='path to the video that is to be played', type=str)
+def add_args(parser):
+    parser.add_argument("-v", "--video_path", default=DEFAULT_VIDEO_PATH, help='path to the video that is to be played', type=str)
     parser.add_argument("-r", "--rate", default=1,
          help="set playback rate", type=float)
     parser.add_argument("-s", "--starting_pos", default=0,
@@ -34,13 +37,18 @@ def main():
     parser.add_argument("-i", "--interval", default=1,
         help="set how much time we should leave in the video before the end", type=int)
 
+def main():
+    #user arguments
+    parser = argparse.ArgumentParser(description='Enter optional commands for player')
+    add_args(parser)
+
     args = parser.parse_args()
 
     #subprocess.run(["export", "DISPLAY=:0"])
     os.system("export DISPLAY=:0")
 
     # video_player = OMXPlayer(args.video_path, args=['--no-osd'])
-    video_player = vlc.MediaPlayer(args.video_path)
+    video_player = vlc.MediaPlayer(tilde_path(args.video_path))
     video_player.set_fullscreen(True)
 
     video_player.play()
