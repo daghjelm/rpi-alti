@@ -22,14 +22,19 @@ class Player():
         end_time = self.half_time if up else self.full_time
         #we shouldn't play longer than the video - the margin
         if pos < end_time - self.margin - duration:
-            self.player.play()
+            self.player.set_rate(1)
+            # self.player.play()
+            print("duration", duration)
             YAPI.Sleep(duration)
-            self.player.pause()
+            self.player.set_rate(0.25)
+            # self.player.pause()
         #this is if sleeping the duration will put us past end - margin
         elif end_time - self.margin - pos > 0:
-            self.player.play()
+            self.player.set_rate(1)
+            # self.player.play()
+            print("end_time - self.margin - pos", end_time - self.margin - pos)
             YAPI.Sleep(end_time - self.margin - pos)
-            self.player.pause()
+            self.player.set_rate(0.25)
 
     def run(self, play_time, interval):
         sensor = self.sensor
@@ -40,10 +45,6 @@ class Player():
 
         #get first value
         prev = sensor.get_currentValue()
-
-        player.play()
-        sleep(2)
-        player.pause()
 
         while sensor.isOnline():
             pos = player.get_time()
@@ -59,17 +60,13 @@ class Player():
                 except Exception as e:
                     print(e)
             #sensor if moving down
-            elif current - prev < (- diff):
+            elif current - prev < -diff:
                 print('down')
                 if pos < self.half_time: #means we changed direction
                     #calculate new position
                     pos = self.full_time - pos
                     player.set_time(pos)
                 try:
-                    # print('pos:', pos)
-                    # adjusted = self.get_adjusted_duration(pos, play_time)
-                    # print('adjusted:', adjusted)
-                    # print('adjusted + pos:', adjusted + pos)
                     self.play_video(pos, False, play_time)
                 except Exception as e:
                     print(e)
