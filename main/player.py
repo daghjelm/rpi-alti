@@ -51,6 +51,9 @@ class Player():
         direction = "up" if going_up else "down" if going_down else "still"
         print("direction", direction)
 
+        # being passed half way means the video is playing backwards
+        # --------------- | ----------------
+        #    up    self.half_time    down
         changed_direction = (going_up and pos > self.half_time) or \
                             (going_down and pos < self.half_time)
 
@@ -70,7 +73,7 @@ class Player():
     def run(self):
         diff = 0.15
 
-        #get first value
+        # Initial sensor value is first prev
         prev = self.sensor.get_currentValue()
 
         while self.sensor.isOnline():
