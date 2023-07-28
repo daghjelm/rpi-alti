@@ -48,15 +48,16 @@ def main():
     os.system("export DISPLAY=:0")
 
     # video_player = OMXPlayer(args.video_path, args=['--no-osd'])
-    video_player = vlc.MediaPlayer(tilde_path(args.video_path))
+    video_player: vlc.MediaPlayer = vlc.MediaPlayer(tilde_path(args.video_path))
     video_player.set_fullscreen(True)
 
-    video_player.play()
-    sleep(2)
-    video_player.pause()
     video_player.set_rate(args.rate)
-    print(args.starting_pos)
     video_player.set_time(args.starting_pos)
+    sleep(1)
+    video_player.play()
+    sleep(1)
+    video_player.pause()
+    print(args.starting_pos)
 
     #get playback rate from arguments
     errmsg = YRefParam()
