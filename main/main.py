@@ -47,7 +47,6 @@ def main():
     #subprocess.run(["export", "DISPLAY=:0"])
     os.system("export DISPLAY=:0")
 
-    # video_player = OMXPlayer(args.video_path, args=['--no-osd'])
     video_player = vlc.MediaPlayer(tilde_path(args.video_path))
     video_player.set_fullscreen(True)
 
@@ -75,11 +74,17 @@ def main():
 
     altSensor = YAltitude.FindAltitude(target + '.altitude')
 
-    alti_player = player.Player(video_player, altSensor, args.margin)
+    alti_player = player.Player(
+        video_player,
+        altSensor,
+        args.margin,
+        args.play_time,
+        args.interval,
+    )
 
     #init video in omx
     try:
-        alti_player.run(args.play_time, args.interval)
+        alti_player.run()
     except Exception as e:
         print('exception caught')
         print(e)
