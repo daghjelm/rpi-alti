@@ -16,6 +16,7 @@ class Player():
         self.sensor = sensor
         self.margin = margin * 1000 #need margin in ms
         self.play_time = play_time * 1000 #as ms
+        self.interval = interval
 
         self.full_time = player.get_length()
         self.half_time = self.full_time / 2
@@ -67,8 +68,7 @@ class Player():
                 print(e)
         #sensor is still
         else:
-            print('still')
-
+            assert direction == "still"
 
     def run(self):
         diff = 0.15
