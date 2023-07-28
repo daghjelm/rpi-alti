@@ -35,7 +35,7 @@ def add_args(parser):
     parser.add_argument("-m", "--margin", default=10,
         help="set how much time we should leave in the video before the end", type=int)
     parser.add_argument("-i", "--interval", default=1,
-        help="set how much time we should leave in the video before the end", type=int)
+        help="set how much time we should leave in the video before the end", type=float)
 
 def main():
     #user arguments
@@ -48,7 +48,7 @@ def main():
     os.system("export DISPLAY=:0")
 
     # video_player = OMXPlayer(args.video_path, args=['--no-osd'])
-    video_player: vlc.MediaPlayer = vlc.MediaPlayer(tilde_path(args.video_path))
+    video_player = vlc.MediaPlayer(tilde_path(args.video_path))
     video_player.set_fullscreen(True)
 
     video_player.set_rate(args.rate)
