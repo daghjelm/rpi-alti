@@ -51,12 +51,40 @@ def main():
     video_player.set_fullscreen(True)
 
     video_player.set_rate(args.rate)
-    video_player.set_time(args.starting_pos)
-    sleep(1)
+    # video_player.set_time(args.starting_pos)
+    # sleep(1)
+    # video_player.play()
+    # sleep(1)
+    # video_player.pause()
+    # print(args.starting_pos)
+
     video_player.play()
-    sleep(1)
+
+    sleep(2)
+
     video_player.pause()
-    print(args.starting_pos)
+    video_player.set_time(10000)
+    video_player.play()
+    print("play 1")
+    sleep(5)
+
+    video_player.pause()
+    video_player.set_time(20000)
+    video_player.play()
+    print("play 2")
+    sleep(5)
+
+    video_player.pause()
+    video_player.set_time(30000)
+    video_player.play()
+    print("play 3")
+    sleep(5)
+
+    video_player.pause()
+    video_player.set_time(40000)
+    video_player.play()
+    print("play 4")
+    sleep(5)
 
     #get playback rate from arguments
     errmsg = YRefParam()
