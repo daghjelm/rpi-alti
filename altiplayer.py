@@ -25,18 +25,18 @@ class AltiPlayer():
     # def get_adjusted_duration(self, pos, duration):
     #     return duration + (1 - pos % 1)
 
-    def play_video_fixed(self, pos, up, duration, stopping):
+    def play_video_fixed(self, pos, up, duration):
         end_time = self.half_time if up else self.full_time
         plays_past_end = pos + duration > end_time - self.margin
 
         #we shouldn't play longer than the video - the margin
         if plays_past_end:
             duration = end_time - self.margin - pos 
-        if not stopping:
+        if not self.stopping:
             self.player.set_rate(1)
         self.player.play()
         YAPI.Sleep(duration)
-        self.player.pause if stopping else self.player.set_rate(0.25)
+        self.player.pause if self.stopping else self.player.set_rate(0.25)
         
     def calc_dir_and_play(self, prev, diff):
         pos = self.player.get_time()
