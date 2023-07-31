@@ -10,7 +10,8 @@ class AltiPlayer():
         sensor: YAltitude,
         margin: float,
         play_time: int,
-        interval: float
+        interval: float,
+        stopping: bool = False,
     ):
         self.player = player
         self.sensor = sensor
@@ -26,21 +27,16 @@ class AltiPlayer():
 
     def play_video_fixed(self, pos, up, duration, stopping):
         end_time = self.half_time if up else self.full_time
+        plays_past_end = pos + duration > end_time - self.margin
+
         #we shouldn't play longer than the video - the margin
-        if pos < end_time - self.margin - duration:
+        if plays_past_end:
+            duration = end_time - self.margin - pos 
+        if not stopping:
             self.player.set_rate(1)
-            self.player.play()
-            print("duration", duration)
-            YAPI.Sleep(duration)
-            self.player.set_rate(0.25)
-            # self.player.pause()
-        #this is if sleeping the duration will put us past end - margin
-        elif end_time - self.margin - pos > 0:
-            self.player.set_rate(1)
-            self.player.play()
-            print("end_time - self.margin - pos", end_time - self.margin - pos)
-            YAPI.Sleep(end_time - self.margin - pos)
-            self.player.set_rate(0.25)
+        self.player.play()
+        YAPI.Sleep(duration)
+        self.player.pause if stopping else self.player.set_rate(0.25)
         
     def calc_dir_and_play(self, prev, diff):
         pos = self.player.get_time()
