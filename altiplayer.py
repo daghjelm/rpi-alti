@@ -3,7 +3,7 @@ from yoctopuce.yocto_api import YAPI
 from yoctopuce.yocto_altitude import YAltitude
 from vlc import MediaPlayer
 
-class Player():
+class AltiPlayer():
     def __init__(
         self, 
         player: MediaPlayer,
@@ -24,7 +24,7 @@ class Player():
     # def get_adjusted_duration(self, pos, duration):
     #     return duration + (1 - pos % 1)
 
-    def play_video_fixed(self, pos, up, duration):
+    def play_video_fixed(self, pos, up, duration, stopping):
         end_time = self.half_time if up else self.full_time
         #we shouldn't play longer than the video - the margin
         if pos < end_time - self.margin - duration:
