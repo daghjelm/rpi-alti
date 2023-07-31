@@ -10,7 +10,7 @@ from yoctopuce.yocto_api import *
 from yoctopuce.yocto_altitude import *
 
 #import main.player as player
-import player
+import altiplayer
 
 # add ../../Sources to the PYTHONPATH
 sys.path.append(os.path.join("..", "..", "Sources"))
@@ -35,7 +35,42 @@ def add_args(parser):
     parser.add_argument("-m", "--margin", default=10,
         help="set how much time we should leave in the video before the end", type=int)
     parser.add_argument("-i", "--interval", default=1,
-        help="set how much time we should leave in the video before the end", type=int)
+        help="set how much time we should leave in the video before the end", type=float)
+
+def testrun(player):
+    player.play()
+
+    sleep(2)
+
+    player.set_time(10000)
+    sleep(1)
+    print("play 1")
+    player.play()
+    sleep(5)
+
+    player.set_time(20000)
+    sleep(1)
+    print("play 2")
+    player.play()
+    sleep(5)
+
+    player.set_time(30000)
+    sleep(1)
+    print("play 3")
+    player.play()
+    sleep(5)
+
+    player.set_time(40000)
+    print("play 4")
+    player.play()
+    sleep(5)
+    player.pause()
+
+def set_init_rate_pos(player, rate, starting_pos):
+    player.set_rate(rate)
+    player.play()
+    player.pause()
+    player.set_time(starting_pos)
 
 def main():
     #user arguments
@@ -44,20 +79,15 @@ def main():
 
     args = parser.parse_args()
 
-    #subprocess.run(["export", "DISPLAY=:0"])
-    os.system("export DISPLAY=:0")
+    # instance = vlc.Instance("--input-fast-seek", "--no-xlib", "--vout=mmal_vout)
+    instance = vlc.Instance()
 
-    # video_player = OMXPlayer(args.video_path, args=['--no-osd'])
-    video_player: vlc.MediaPlayer = vlc.MediaPlayer(tilde_path(args.video_path))
+    video_player = instance.media_player_new(tilde_path(args.video_path))
     video_player.set_fullscreen(True)
 
-    video_player.set_rate(args.rate)
-    video_player.set_time(args.starting_pos)
-    sleep(1)
-    video_player.play()
-    sleep(1)
-    video_player.pause()
-    print(args.starting_pos)
+    set_init_rate_pos(video_player, args.rate, args.starting_pos)
+
+    testrun(video_player)
 
     #get playback rate from arguments
     errmsg = YRefParam()
@@ -75,11 +105,17 @@ def main():
 
     altSensor = YAltitude.FindAltitude(target + '.altitude')
 
-    alti_player = player.Player(video_player, altSensor, args.margin)
+    alti_player = altiplayer.AltiPlayer(
+        video_player,
+        altSensor,
+        args.margin,
+        args.play_time,
+        args.interval,
+    )
 
     #init video in omx
     try:
-        alti_player.run(args.play_time, args.interval)
+        alti_player.run()
     except Exception as e:
         print('exception caught')
         print(e)
