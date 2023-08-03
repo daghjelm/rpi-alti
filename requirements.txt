@@ -1,3 +1,6 @@
+evdev==1.6.1
 pynput==1.7.6
 python-vlc==3.0.18122
-yoctopuce==1.10.54852
+python-xlib==0.33
+six==1.16.0
+yoctopuce==1.10.55677

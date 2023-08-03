@@ -21,7 +21,7 @@ def add_args(parser):
     parser.add_argument("-v", "--video_path", default=DEFAULT_VIDEO_PATH, help='path to the video that is to be played', type=str)
     parser.add_argument("-r", "--rate", default=1,
                         help="set playback rate", type=float)
-    parser.add_argument("-s", "--starting_pos", default=0,
+    parser.add_argument("-s", "--starting_pos", default=10,
                         help="set the starting position of the video to be played", type=int)
     parser.add_argument("-p", "--play_time", default=10,
                         help="set how long the video is to be played before checking for movement again", type=int)
@@ -76,7 +76,8 @@ def main():
 
     video_player = videoplayer.VLCPlayer(args.video_path)
     if args.fraction:
-        args.starting_pos = video_player.get_length() / 4
+        print(video_player.get_length())
+        args.starting_pos = video_player.get_length() // 4
     video_player.init_rate_pos(args.rate, args.starting_pos)
 
     # testrun(video_player, 3)
