@@ -43,6 +43,7 @@ class AltiPlayer():
     def calc_dir_and_play(self, prev, diff):
         pos = self.player.get_time()
         current = self.sensor.get_currentValue()
+        print("current", current)
 
         going_up = current - prev > diff
         going_down = current - prev < -diff
@@ -69,12 +70,14 @@ class AltiPlayer():
             assert direction == "still"
 
     def run(self):
-        diff = 0.15
+        diff = 0.6
 
         # Initial sensor value is first prev
         prev = self.sensor.get_currentValue()
+        print("prev", prev)
 
         while self.sensor.isOnline():
             self.calc_dir_and_play(prev, diff)
             prev = self.sensor.get_currentValue()
+            print("prev", prev)
             sleep(self.interval)
