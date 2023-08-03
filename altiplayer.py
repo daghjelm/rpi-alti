@@ -3,6 +3,7 @@ from yoctopuce.yocto_api import YAPI
 from yoctopuce.yocto_altitude import YAltitude
 from videoplayer import VideoPlayer
 from vlc import MediaPlayer
+from pynput import keyboard
 
 class AltiPlayer():
     def __init__(
@@ -13,6 +14,7 @@ class AltiPlayer():
         play_time: int,
         interval: float,
         stopping: bool = False,
+        keycontrol: bool = False
     ):
         self.player = player
         self.sensor = sensor
@@ -20,6 +22,9 @@ class AltiPlayer():
         self.play_time = play_time * 1000 #as ms
         self.interval = interval
         self.stopping = stopping
+        self.keycontrol = keycontrol
+        self.pressing_up = False
+        self.pressing_down = False
 
         self.full_time = player.get_length()
         self.half_time = self.full_time / 2
@@ -45,8 +50,8 @@ class AltiPlayer():
         current = self.sensor.get_currentValue()
         print("current", current)
 
-        going_up = current - prev > diff
-        going_down = current - prev < -diff
+        going_up = current - prev > diff or self.pressing_up
+        going_down = current - prev < -diff or self.pressing_down
 
         direction = "up" if going_up else "down" if going_down else "still"
         print("direction", direction)
@@ -68,9 +73,23 @@ class AltiPlayer():
         #sensor is still
         else:
             assert direction == "still"
+    
+    def on_press(self, key):
+        if key == keyboard.Key.up:
+            self.pressing_down = False
+            self.pressing_up = not self.pressing_up
+            print("pressing up: ", self.pressing_up)
+        if key == keyboard.Key.down:
+            self.presssing_up = False
+            self.pressing_down = not self.pressing_down
+            print("pressing down: ", self.pressing_down)
 
     def run(self):
         diff = 0.6
+
+        if self.keycontrol:
+            listener = keyboard.Listener(on_press=self.on_press)
+            listener.start()
 
         # Initial sensor value is first prev
         prev = self.sensor.get_currentValue()

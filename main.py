@@ -95,6 +95,7 @@ def main():
         args.margin,
         args.play_time,
         args.interval,
+        keycontrol=True
     )
 
     try:
