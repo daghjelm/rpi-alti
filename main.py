@@ -75,6 +75,7 @@ def main():
     # instance = vlc.Instance("--input-fast-seek", "--no-xlib", "--vout=mmal_vout)
 
     video_player = videoplayer.VLCPlayer(args.video_path)
+    args.starting_pos *= 1000
     if args.fraction:
         print(video_player.get_length())
         args.starting_pos = video_player.get_length() // 4
