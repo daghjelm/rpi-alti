@@ -20,15 +20,21 @@ def die(msg):
 def add_args(parser):
     parser.add_argument("-v", "--video_path", default=DEFAULT_VIDEO_PATH, help='path to the video that is to be played', type=str)
     parser.add_argument("-r", "--rate", default=1,
-         help="set playback rate", type=float)
+                        help="set playback rate", type=float)
     parser.add_argument("-s", "--starting_pos", default=0,
-        help="set the starting position of the video to be played", type=int)
+                        help="set the starting position of the video to be played", type=int)
     parser.add_argument("-p", "--play_time", default=10,
-        help="set how long the video is to be played before checking for movement again", type=int)
+                        help="set how long the video is to be played before checking for movement again", type=int)
     parser.add_argument("-m", "--margin", default=10,
-        help="set how much time we should leave in the video before the end", type=int)
+                        help="set how much time we should leave in the video before the end", type=int)
     parser.add_argument("-i", "--interval", default=1,
-        help="set how much time we should leave in the video before the end", type=float)
+                        help="set how much time we should leave in the video before the end", type=float)
+    parser.add_argument("-k", "--keycontrol", default=False, 
+                        help="decide if you can control direction with arrow keys", type=bool)
+    parser.add_argument("-t", "--stopping", default=False,
+                        help="decide if being still should mean full stop", type=bool)
+    parser.add_argument("-f", "--fraction", default=False, 
+                        help="decide if start time should be a fraction (1/4) of entire vid", type=True)
 
 def testrun(player, sleep_time):
     player.play()
@@ -69,6 +75,8 @@ def main():
     # instance = vlc.Instance("--input-fast-seek", "--no-xlib", "--vout=mmal_vout)
 
     video_player = videoplayer.VLCPlayer(args.video_path)
+    if args.fraction:
+        args.starting_pos = video_player.get_length() / 4
     video_player.init_rate_pos(args.rate, args.starting_pos)
 
     # testrun(video_player, 3)
@@ -95,7 +103,7 @@ def main():
         args.margin,
         args.play_time,
         args.interval,
-        keycontrol=True
+        keycontrol=args.keycontrol
     )
 
     try:
