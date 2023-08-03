@@ -31,7 +31,7 @@ def add_args(parser):
         help="set how much time we should leave in the video before the end", type=float)
 
 def testrun(player, sleep_time):
-    player.play(3)
+    player.play()
 
     sleep(2)
 
@@ -71,7 +71,7 @@ def main():
     video_player = videoplayer.VLCPlayer(args.video_path)
     video_player.init_rate_pos(args.rate, args.starting_pos)
 
-    testrun(video_player)
+    # testrun(video_player, 3)
 
     #get playback rate from arguments
     errmsg = YRefParam()
@@ -104,7 +104,7 @@ def main():
         print(e)
         YAPI.FreeAPI()
         video_player.stop()
-        os.execv(sys.executable, ['python3'] + sys.argv)
+        # os.execv(sys.executable, ['python3'] + sys.argv)
 
     YAPI.FreeAPI()
 
