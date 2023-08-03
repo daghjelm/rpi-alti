@@ -30,8 +30,8 @@ def add_args(parser):
     parser.add_argument("-i", "--interval", default=1,
         help="set how much time we should leave in the video before the end", type=float)
 
-def testrun(player):
-    player.play()
+def testrun(player, sleep_time):
+    player.play(3)
 
     sleep(2)
 
@@ -39,24 +39,24 @@ def testrun(player):
     sleep(1)
     print("play 1")
     player.play()
-    sleep(5)
+    sleep(sleep_time)
 
     player.set_time(20000)
     sleep(1)
     print("play 2")
     player.play()
-    sleep(5)
+    sleep(sleep_time)
 
     player.set_time(30000)
     sleep(1)
     print("play 3")
     player.play()
-    sleep(5)
+    sleep(sleep_time)
 
     player.set_time(40000)
     print("play 4")
     player.play()
-    sleep(5)
+    sleep(sleep_time)
     player.pause()
 
 def main():
