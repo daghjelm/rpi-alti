@@ -34,7 +34,7 @@ def add_args(parser):
     parser.add_argument("-t", "--stopping", default=False,
                         help="decide if being still should mean full stop", type=bool)
     parser.add_argument("-f", "--fraction", default=False, 
-                        help="decide if start time should be a fraction (1/4) of entire vid", type=True)
+                        help="decide if start time should be a fraction (1/4) of entire vid", type=bool)
 
 def testrun(player, sleep_time):
     player.play()
@@ -103,7 +103,8 @@ def main():
         args.margin,
         args.play_time,
         args.interval,
-        keycontrol=args.keycontrol
+        keycontrol=args.keycontrol,
+        stopping=args.stopping
     )
 
     try:
