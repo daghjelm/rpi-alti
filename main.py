@@ -1,25 +1,18 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-import os, sys, argparse, subprocess
+import os, sys, argparse 
 from time import sleep
 from pathlib import Path
-import vlc
 
 #yoctopuce api
 from yoctopuce.yocto_api import *
 from yoctopuce.yocto_altitude import *
 
-#import main.player as player
 import altiplayer
+import videoplayer 
 
-# add ../../Sources to the PYTHONPATH
-sys.path.append(os.path.join("..", "..", "Sources"))
+# sys.path.append(os.path.join("..", "..", "Sources"))
 DEFAULT_VIDEO_PATH = Path("/home/computemodule/Desktop/UPP_NER_2.mp4")
-
-def tilde_path(pathstr):
-    if pathstr[0] == "~":
-        return os.path.expanduser(pathstr)
-    return pathstr
 
 def die(msg):
    sys.exit(msg + ' (check USB cable)')
@@ -66,12 +59,6 @@ def testrun(player):
     sleep(5)
     player.pause()
 
-def set_init_rate_pos(player, rate, starting_pos):
-    player.set_rate(rate)
-    player.play()
-    player.pause()
-    player.set_time(starting_pos)
-
 def main():
     #user arguments
     parser = argparse.ArgumentParser(description='Enter optional commands for player')
@@ -80,12 +67,9 @@ def main():
     args = parser.parse_args()
 
     # instance = vlc.Instance("--input-fast-seek", "--no-xlib", "--vout=mmal_vout)
-    instance = vlc.Instance()
 
-    video_player = instance.media_player_new(tilde_path(args.video_path))
-    video_player.set_fullscreen(True)
-
-    set_init_rate_pos(video_player, args.rate, args.starting_pos)
+    video_player = videoplayer.VLCPlayer(args.video_path)
+    video_player.init_rate_pos(args.rate, args.starting_pos)
 
     testrun(video_player)
 
@@ -113,7 +97,6 @@ def main():
         args.interval,
     )
 
-    #init video in omx
     try:
         alti_player.run()
     except Exception as e:

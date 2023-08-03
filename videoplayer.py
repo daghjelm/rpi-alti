@@ -8,7 +8,6 @@ def tilde_path(pathstr):
     return pathstr
 
 class VideoPlayer(ABC):
-
     @abstractmethod
     def init_rate_pos(self, rate, starting_pos):
         pass
@@ -34,7 +33,7 @@ class VideoPlayer(ABC):
         pass
 
 class VLCPlayer(VideoPlayer):
-    def __init__(self, path, init_args):
+    def __init__(self, path, init_args = None):
         instance = vlc.Instance(*init_args)
         self.video_player = instance.media_player_new(tilde_path(path))
         self.video_player.set_fullscreen(True)

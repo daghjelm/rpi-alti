@@ -1,12 +1,13 @@
 from time import sleep
 from yoctopuce.yocto_api import YAPI
 from yoctopuce.yocto_altitude import YAltitude
+from videoplayer import VideoPlayer
 from vlc import MediaPlayer
 
 class AltiPlayer():
     def __init__(
         self, 
-        player: MediaPlayer,
+        player: VideoPlayer,
         sensor: YAltitude,
         margin: float,
         play_time: int,
@@ -18,6 +19,7 @@ class AltiPlayer():
         self.margin = margin * 1000 #need margin in ms
         self.play_time = play_time * 1000 #as ms
         self.interval = interval
+        self.stopping = stopping
 
         self.full_time = player.get_length()
         self.half_time = self.full_time / 2
