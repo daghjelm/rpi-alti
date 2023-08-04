@@ -72,6 +72,8 @@ def main():
 
     args = parser.parse_args()
 
+    assert args.margin < args.starting_pos
+
     # instance = vlc.Instance("--input-fast-seek", "--no-xlib", "--vout=mmal_vout)
 
     video_player = videoplayer.VLCPlayer(args.video_path)
@@ -79,6 +81,9 @@ def main():
     if args.fraction:
         print(video_player.get_length())
         args.starting_pos = video_player.get_length() // 4
+
+    assert args.starting_pos < video_player.get_length()
+
     video_player.init_rate_pos(args.rate, args.starting_pos)
 
     # testrun(video_player, 3)
