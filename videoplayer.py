@@ -46,6 +46,9 @@ class VLCPlayer(VideoPlayer):
         instance = vlc.Instance(*init_args)
         self.video_player = instance.media_player_new(tilde_path(path))
         self.video_player.set_fullscreen(True)
+        self.video_player.play()
+        sleep(1)
+        self.video_player.pause()
 
     def init_rate_pos(self, rate, starting_pos):
         sleep(0.5)        
