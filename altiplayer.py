@@ -32,18 +32,30 @@ class AltiPlayer():
     # def get_adjusted_duration(self, pos, duration):
     #     return duration + (1 - pos % 1)
 
+
+    # play until end_time, then jump to start_time
+    def play_and_loop(self, pos, end_time, start_time, duration):
+        time_to_end = end_time - pos
+        remaining_time = duration - time_to_end
+        self.player.play()
+        YAPI.Sleep(time_to_end)
+        self.player.set_time(start_time)
+        self.player.play()
+        YAPI.Sleep(remaining_time)
+
     def play_video_fixed(self, pos, up, duration):
         end_time = self.half_time if up else self.full_time
-        plays_past_end = pos + duration > end_time - self.margin
+        start_time = 0 if up else self.half_time
+        plays_past_end = pos + duration > end_time
 
         #we shouldn't play longer than the video - the margin
-        if plays_past_end:
-            duration = end_time - self.margin - pos 
         if not self.stopping:
             self.player.set_rate(1)
-        self.player.play()
-        YAPI.Sleep(duration)
-        self.player.pause if self.stopping else self.player.set_rate(0.25)
+        if plays_past_end:
+            self.play_and_loop(pos, end_time, start_time)
+        else:
+            self.player.play()
+            YAPI.Sleep(duration)
         
     def calc_dir_and_play(self, prev, diff):
         pos = self.player.get_time()
@@ -73,6 +85,7 @@ class AltiPlayer():
         #sensor is still
         else:
             assert direction == "still"
+            self.player.pause if self.stopping else self.player.set_rate(0.25)
     
     def on_press(self, key):
         if key == keyboard.Key.up:
