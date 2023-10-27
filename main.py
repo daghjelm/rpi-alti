@@ -5,8 +5,8 @@ from time import sleep
 from pathlib import Path
 
 #yoctopuce api
-from yoctopuce.yocto_api import *
-from yoctopuce.yocto_altitude import *
+from yoctopuce.yocto_api import YAPI, YRefParam
+from yoctopuce.yocto_altitude import YAltitude
 
 import altiplayer
 import videoplayer 
@@ -100,6 +100,8 @@ def main():
     sensor = YAltitude.FirstAltitude()
     if sensor is None:
         die('No module connected')
+        return
+
     m = sensor.get_module()
     target = m.get_serialNumber()
 
