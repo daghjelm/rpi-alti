@@ -5,8 +5,8 @@ from time import sleep
 from pathlib import Path
 
 #yoctopuce api
-from yoctopuce.yocto_api import *
-from yoctopuce.yocto_altitude import *
+from yoctopuce.yocto_api import YAPI, YRefParam
+from yoctopuce.yocto_altitude import YAltitude
 
 import altiplayer
 import videoplayer 
@@ -28,7 +28,7 @@ def add_args(parser):
     parser.add_argument("-m", "--margin", default=10,
                         help="set how much time we should leave in the video before the end", type=int)
     parser.add_argument("-i", "--interval", default=1,
-                        help="set how much time we should leave in the video before the end", type=float)
+                        help="set how much time we should leave in the video before the end", type=int)
     parser.add_argument("-k", "--keycontrol", default=False, 
                         help="decide if you can control direction with arrow keys", type=bool)
     parser.add_argument("-t", "--stopping", default=False,
@@ -72,16 +72,17 @@ def main():
 
     args = parser.parse_args()
 
-    assert args.margin < args.starting_pos
+    assert args.margin <= args.starting_pos
 
     # instance = vlc.Instance("--input-fast-seek", "--no-xlib", "--vout=mmal_vout)
 
     video_player = videoplayer.VLCPlayer(args.video_path)
+
     args.starting_pos *= 1000
     if args.fraction:
         print(video_player.get_length())
         args.starting_pos = video_player.get_length() // 4
-
+    
     assert args.starting_pos < video_player.get_length()
 
     video_player.init_rate_pos(args.rate, args.starting_pos)
@@ -93,12 +94,14 @@ def main():
 
     # Setup the API to use local USB devices
     if YAPI.RegisterHub("usb", errmsg) != YAPI.SUCCESS:
-        sys.exit("init error" + errmsg.value)
+        sys.exit("init error" + str(errmsg.value))
 
     # retreive any altitude sensor
     sensor = YAltitude.FirstAltitude()
     if sensor is None:
         die('No module connected')
+        return
+
     m = sensor.get_module()
     target = m.get_serialNumber()
 

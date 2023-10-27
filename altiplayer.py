@@ -2,7 +2,6 @@ from time import sleep
 from yoctopuce.yocto_api import YAPI
 from yoctopuce.yocto_altitude import YAltitude
 from videoplayer import VideoPlayer
-from vlc import MediaPlayer
 from pynput import keyboard
 
 class AltiPlayer():
@@ -26,29 +25,40 @@ class AltiPlayer():
         self.pressing_up = False
         self.pressing_down = False
 
-        self.full_time = player.get_length()
-        self.half_time = self.full_time / 2
+        self.full_time: int = player.get_length()
+        self.half_time: int = self.full_time // 2
     
     # def get_adjusted_duration(self, pos, duration):
     #     return duration + (1 - pos % 1)
 
-    def play_video_fixed(self, pos, up, duration):
+
+    # play until end_time, then jump to start_time
+    def play_and_loop(self, pos: int, end_time: int, start_time: int):
+        time_to_end = end_time - pos
+        remaining_time = self.play_time - time_to_end
+        self.player.play()
+        YAPI.Sleep(time_to_end)
+        self.player.set_time(start_time)
+        self.player.play()
+        YAPI.Sleep(remaining_time)
+
+    def play_video_fixed(self, pos, up):
         end_time = self.half_time if up else self.full_time
-        plays_past_end = pos + duration > end_time - self.margin
+        start_time = 0 if up else self.half_time
+        plays_past_end = pos + self.play_time > end_time
 
         #we shouldn't play longer than the video - the margin
-        if plays_past_end:
-            duration = end_time - self.margin - pos 
         if not self.stopping:
             self.player.set_rate(1)
-        self.player.play()
-        YAPI.Sleep(duration)
-        self.player.pause if self.stopping else self.player.set_rate(0.25)
+        if plays_past_end:
+            self.play_and_loop(pos, end_time, start_time)
+        else:
+            self.player.play()
+            YAPI.Sleep(self.play_time)
         
     def calc_dir_and_play(self, prev, diff):
         pos = self.player.get_time()
         current = self.sensor.get_currentValue()
-        print("current", current)
 
         going_up = current - prev > diff or self.pressing_up
         going_down = current - prev < -diff or self.pressing_down
@@ -67,14 +77,16 @@ class AltiPlayer():
                 pos = self.full_time - pos
                 self.player.set_time(pos)
             try:
-                self.play_video_fixed(pos, going_up, self.play_time)
+                self.play_video_fixed(pos, going_up)
             except Exception as e:
                 print(e)
         #sensor is still
         else:
             assert direction == "still"
+            self.player.pause if self.stopping else self.player.set_rate(0.25)
     
     def on_press(self, key):
+        print("key", key)
         if key == keyboard.Key.up:
             self.pressing_down = False
             self.pressing_up = not self.pressing_up
@@ -93,10 +105,8 @@ class AltiPlayer():
 
         # Initial sensor value is first prev
         prev = self.sensor.get_currentValue()
-        print("prev", prev)
 
         while self.sensor.isOnline():
             self.calc_dir_and_play(prev, diff)
             prev = self.sensor.get_currentValue()
-            print("prev", prev)
             sleep(self.interval)
