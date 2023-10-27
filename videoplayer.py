@@ -41,6 +41,10 @@ class VideoPlayer(ABC):
     def set_time(self, time: int):
         pass
 
+    @abstractmethod
+    def is_playing(self) -> bool:
+        pass
+
 class VLCPlayer(VideoPlayer):
     def __init__(self, path: str, init_args = []): # type: ignore
         instance = vlc.Instance(*init_args)
@@ -83,4 +87,6 @@ class VLCPlayer(VideoPlayer):
     
     def set_time(self, time: int):
         self.video_player.set_time(time)
-
+    
+    def is_playing(self) -> bool:
+        return self.video_player.is_playing()

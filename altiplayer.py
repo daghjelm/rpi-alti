@@ -46,6 +46,7 @@ class AltiPlayer():
         end_time = self.half_time if up else self.full_time
         start_time = 0 if up else self.half_time
         plays_past_end = pos + self.play_time > end_time
+        print('playing video fixed with pos {pos} and end_time {end_time}'.format(pos=pos, end_time=end_time))
 
         #we shouldn't play longer than the video - the margin
         if not self.stopping:
