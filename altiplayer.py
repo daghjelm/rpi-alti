@@ -109,17 +109,6 @@ class AltiPlayer():
             assert direction == "still"
             self.player.pause if self.stopping else self.player.set_rate(0.25)
     
-    def on_press(self, key):
-        self.log("key", key)
-        if key == keyboard.Key.up:
-            self.pressing_down = False
-            self.pressing_up = not self.pressing_up
-            self.log("pressing up: ", self.pressing_up)
-        if key == keyboard.Key.down:
-            self.presssing_up = False
-            self.pressing_down = not self.pressing_down
-            self.log("pressing down: ", self.pressing_down)
-    
     def on_input(self, input):
         if input == "u":
             self.pressing_down = False
@@ -141,7 +130,7 @@ class AltiPlayer():
 
     def listen_for_input(self):
         while True:
-            user_input = input("Enter dir: ")
+            user_input = input()
             self.on_input(user_input)
             self.log(f"You entered: {user_input}")
 
@@ -149,8 +138,6 @@ class AltiPlayer():
         diff = 0.6
 
         if self.keycontrol:
-            # listener = keyboard.Listener(on_press=self.on_press)
-            # listener.start()
             input_thread = threading.Thread(target=self.listen_for_input)
             input_thread.start()
 
