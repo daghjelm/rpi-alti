@@ -10,7 +10,7 @@ class AltiPlayer():
         self, 
         player: VideoPlayer,
         sensor: YAltitude,
-        margin: float,
+        margin: int,
         play_time: int,
         interval: float,
         stopping: bool = False,
@@ -29,8 +29,10 @@ class AltiPlayer():
         self.pressing_up = False
         self.pressing_down = False
 
-        self.full_time: int = player.get_length() - 5000
+        self.full_time: int = player.get_length()
         self.half_time: int = self.full_time // 2
+
+        self.full_time -= self.margin
     
     # def get_adjusted_duration(self, pos, duration):
     #     return duration + (1 - pos % 1)
