@@ -2,7 +2,6 @@ from time import sleep
 from yoctopuce.yocto_api import YAPI
 from yoctopuce.yocto_altitude import YAltitude
 from videoplayer import VideoPlayer
-from pynput import keyboard
 import threading
 
 class AltiPlayer():
