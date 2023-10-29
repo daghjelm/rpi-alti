@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Name=Run My Script
+Comment=Run my Python script with arguments
+Exec=python3 /path/to/main.py -v="/home/pi/Desktop/3NY_PALMER.mp4" -k=True -t=True -p=5 -a="/home/pi/Desktop/DAG.mp3"
+Icon=utility-terminal
+Terminal=false
+Type=Application
+Categories=Utility;Application;
