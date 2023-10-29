@@ -122,6 +122,8 @@ class AltiPlayer():
         if input == "sb":
             self.player.set_time(0)
             self.log("set beggining")
+        if input == "t":
+            self.log("time:", self.player.get_time())
         if input == "s":
             self.player.stop()
             self.log("stopping")
@@ -129,6 +131,7 @@ class AltiPlayer():
             self.player.stop()
             self.log("quiting")
             exit() 
+
 
     def listen_for_input(self):
         while True:

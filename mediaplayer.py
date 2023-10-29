@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-import os
 import vlc
 from time import sleep
 
@@ -59,8 +58,15 @@ class MediaPlayer(ABC):
 
 class AudioPlayer():
     def __init__(self, path: str, init_args = []): # type: ignore
+
         instance = vlc.Instance(*init_args)
-        self.audio_player = instance.media_player_new(path)
+
+        media_list = instance.media_list_new()
+        media_list.add_media(path)
+
+        self.audio_player = instance.media_list_player_new()
+        self.audio_player.set_media_list(media_list)
+        self.audio_player.set_playback_mode(vlc.PlaybackMode(1))
     
     def play(self):
         self.audio_player.play()
@@ -78,10 +84,12 @@ class VLCPlayer(MediaPlayer):
         self.video_player.pause()
 
     def init_rate_pos(self, rate: float, starting_pos: int):
-        self.video_player.set_rate(rate)
-        self.video_player.set_time(starting_pos)
-        sleep(0.5)        
         self.video_player.play()
+        sleep(0.5)        
+        if rate != 1:
+            self.video_player.set_rate(rate)
+            sleep(0.5)        
+        self.video_player.set_time(starting_pos)
         sleep(0.5)        
         self.video_player.pause()
     
