@@ -3,12 +3,8 @@ import os
 import vlc
 from time import sleep
 
-def tilde_path(pathstr):
-    if pathstr[0] == "~":
-        return os.path.expanduser(pathstr)
-    return pathstr
 
-class VideoPlayer(ABC):
+class MediaPlayer(ABC):
     @abstractmethod
     def init_rate_pos(self, rate: float, starting_pos: int):
         pass
@@ -61,10 +57,21 @@ class VideoPlayer(ABC):
     def pause_idom(self):
         pass
 
-class VLCPlayer(VideoPlayer):
+class AudioPlayer():
     def __init__(self, path: str, init_args = []): # type: ignore
         instance = vlc.Instance(*init_args)
-        self.video_player = instance.media_player_new(tilde_path(path))
+        self.audio_player = instance.media_player_new(path)
+    
+    def play(self):
+        self.audio_player.play()
+    
+    def pause(self):
+        self.audio_player.pause()
+
+class VLCPlayer(MediaPlayer):
+    def __init__(self, path: str, init_args = []): # type: ignore
+        instance = vlc.Instance(*init_args)
+        self.video_player = instance.media_player_new(path)
         self.video_player.set_fullscreen(True)
         self.video_player.play()
         sleep(1)

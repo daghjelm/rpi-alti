@@ -1,13 +1,13 @@
 from time import sleep
 from yoctopuce.yocto_api import YAPI
 from yoctopuce.yocto_altitude import YAltitude
-from videoplayer import VideoPlayer
+from mediaplayer import MediaPlayer
 import threading
 
 class AltiPlayer():
     def __init__(
         self, 
-        player: VideoPlayer,
+        player: MediaPlayer,
         sensor: YAltitude,
         margin: int,
         play_time: int,

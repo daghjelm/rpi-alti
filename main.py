@@ -9,10 +9,16 @@ from yoctopuce.yocto_api import YAPI, YRefParam
 from yoctopuce.yocto_altitude import YAltitude
 
 import altiplayer
-import videoplayer 
+import mediaplayer 
 
 # sys.path.append(os.path.join("..", "..", "Sources"))
 DEFAULT_VIDEO_PATH = Path("/home/computemodule/Desktop/UPP_NER_2.mp4")
+DEFAULT_AUDIO_PATH = Path("/home/pi/Desktop/DAG.mp3")
+
+def tilde_path(pathstr):
+    if pathstr[0] == "~":
+        return os.path.expanduser(pathstr)
+    return pathstr
 
 def die(msg):
    sys.exit(msg + ' (check USB cable)')
@@ -37,6 +43,8 @@ def add_args(parser):
                         help="decide if start time should be a fraction (1/4) of entire vid", type=bool)
     parser.add_argument("-d", "--debug", default=True, 
                         help="display debug logs", type=bool)
+    parser.add_argument("-a", "--audio_path", default=DEFAULT_AUDIO_PATH, 
+                        help="path to audio file", type=str)
 
 def testrun(player, sleep_time):
     #playing video fixed with pos 462155 and end_time 465667
@@ -63,7 +71,9 @@ def main():
 
     # instance = vlc.Instance("--input-fast-seek", "--no-xlib", "--vout=mmal_vout)
 
-    video_player = videoplayer.VLCPlayer(args.video_path)
+    video_player = mediaplayer.VLCPlayer(args.video_path)
+    audio_player = mediaplayer.AudioPlayer(args.audio_path)
+    audio_player.play()
 
     args.starting_pos *= 1000
     if args.fraction:
