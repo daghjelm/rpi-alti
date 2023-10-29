@@ -28,13 +28,14 @@ class AltiPlayer():
         self.pressing_up = False
         self.pressing_down = False
 
+        self.paused = True 
+
         self.full_time: int = player.get_length()
         self.half_time: int = self.full_time // 2
-
-        self.full_time -= self.margin
     
     # def get_adjusted_duration(self, pos, duration):
     #     return duration + (1 - pos % 1)
+
     def log(self, *args):
         if self.debug:
             print(*args)
@@ -45,37 +46,28 @@ class AltiPlayer():
         remaining_time = self.play_time - time_to_end
         self.log('playing and looping with pos:', pos, 'end_time:', end_time, 'start_time:', start_time)
         self.log('remaining_time:', remaining_time, 'time_to_end:', time_to_end, 'play_time:', self.play_time)
-        if not self.player.is_playing():
-            self.log('player is not playing 1')
-            self.player.play()
         sleep1 = YAPI.Sleep(time_to_end)
-        # self.player.pause()
-        # YAPI.Sleep(1000)
         self.player.set_time(start_time)
         self.log('set time to', start_time)
-        if not self.player.is_playing():
-            self.log('player is not playing 2')
-            self.player.play()
         sleep2 = YAPI.Sleep(remaining_time)
         self.log('sleep1:', sleep1, 'sleep2:', sleep2)
 
     def play_video_fixed(self, pos, up):
-        end_time = self.half_time if up else self.full_time
+        #vlc stops if you play past end of video, so we add a margin
+        end_time = self.half_time if up else (self.full_time - self.margin) 
         start_time = 0 if up else self.half_time
         plays_past_end = pos + self.play_time >= end_time
+
         self.log('playing video fixed with pos: {pos}, end_time: {end_time}, start_time'.format(pos=pos, end_time=end_time))
         self.log('plays_past_end: {plays_past_end}, is_playing(): {is_playing}'.format(plays_past_end=plays_past_end, is_playing=self.player.is_playing()))
         self.log('player time', self.player.get_time(), 'full player time', self.player.get_length())
 
-        #we shouldn't play longer than the video - the margin
         if not self.stopping:
             self.player.set_rate(1)
         if plays_past_end:
             self.play_and_loop(pos, end_time, start_time)
         else:
-            if not self.player.is_playing():
-                self.log('not playing 3', self.player.get_time(), self.player.get_length())
-                self.player.play()
+            self.player.play()
             YAPI.Sleep(self.play_time)
         
     def calc_dir_and_play(self, prev, diff):
@@ -104,9 +96,13 @@ class AltiPlayer():
                 self.log(e)
         #sensor is still
         else:
-            self.log('still and is playing?', self.player.is_playing())
             assert direction == "still"
-            self.player.pause if self.stopping else self.player.set_rate(0.25)
+            if self.stopping:
+                if self.player.is_playing():
+                    self.player.pause()
+            elif not (self.player.get_rate() == 0.25):
+                self.player.set_rate(0.25)
+            self.log('still and is playing?', self.player.is_playing())
     
     def on_input(self, input):
         if input == "u":
@@ -126,6 +122,13 @@ class AltiPlayer():
         if input == "sb":
             self.player.set_time(0)
             self.log("set beggining")
+        if input == "s":
+            self.player.stop()
+            self.log("stopping")
+        if input == "q":
+            self.player.stop()
+            self.log("quiting")
+            exit() 
 
     def listen_for_input(self):
         while True:
