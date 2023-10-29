@@ -110,9 +110,7 @@ def main():
     except Exception as e:
         print('exception caught')
         print(e)
-        YAPI.FreeAPI()
         video_player.stop()
-        # os.execv(sys.executable, ['python3'] + sys.argv)
 
     YAPI.FreeAPI()
 
