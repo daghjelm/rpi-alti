@@ -22,6 +22,10 @@ class VideoPlayer(ABC):
         pass
 
     @abstractmethod
+    def get_rate(self) -> float:
+        pass
+
+    @abstractmethod
     def play(self):
         pass
 
@@ -41,6 +45,22 @@ class VideoPlayer(ABC):
     def set_time(self, time: int):
         pass
 
+    @abstractmethod
+    def is_playing(self) -> bool:
+        pass
+
+    @abstractmethod
+    def get_state(self):
+        pass
+
+    @abstractmethod
+    def can_pause(self):
+        pass
+
+    @abstractmethod
+    def pause_idom(self):
+        pass
+
 class VLCPlayer(VideoPlayer):
     def __init__(self, path: str, init_args = []): # type: ignore
         instance = vlc.Instance(*init_args)
@@ -51,15 +71,10 @@ class VLCPlayer(VideoPlayer):
         self.video_player.pause()
 
     def init_rate_pos(self, rate: float, starting_pos: int):
-        self.video_player.play()
-        sleep(0.5)        
         self.video_player.set_rate(rate)
-        sleep(0.5)        
-        self.video_player.pause()
+        self.video_player.set_time(starting_pos)
         sleep(0.5)        
         self.video_player.play()
-        sleep(0.5)        
-        self.video_player.set_time(starting_pos)
         sleep(0.5)        
         self.video_player.pause()
     
@@ -68,6 +83,9 @@ class VLCPlayer(VideoPlayer):
     
     def set_rate(self, rate: float):
         self.video_player.set_rate(rate)
+
+    def get_rate(self) -> float:
+        return self.video_player.get_rate()
     
     def play(self):
         self.video_player.play()
@@ -83,4 +101,16 @@ class VLCPlayer(VideoPlayer):
     
     def set_time(self, time: int):
         self.video_player.set_time(time)
+    
+    def is_playing(self) -> bool:
+        return self.video_player.is_playing()
+    
+    def get_state(self):
+        return self.video_player.get_state()
 
+    def can_pause(self):
+        return self.video_player.can_pause()
+    
+    def pause_idom(self):
+        if self.is_playing():
+            self.video_player.pause()

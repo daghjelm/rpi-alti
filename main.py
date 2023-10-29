@@ -35,35 +35,22 @@ def add_args(parser):
                         help="decide if being still should mean full stop", type=bool)
     parser.add_argument("-f", "--fraction", default=False, 
                         help="decide if start time should be a fraction (1/4) of entire vid", type=bool)
+    parser.add_argument("-d", "--debug", default=True, 
+                        help="display debug logs", type=bool)
 
 def testrun(player, sleep_time):
-    player.play()
-
-    sleep(2)
-
-    player.set_time(10000)
-    sleep(1)
-    print("play 1")
-    player.play()
-    sleep(sleep_time)
-
-    player.set_time(20000)
-    sleep(1)
-    print("play 2")
-    player.play()
-    sleep(sleep_time)
-
-    player.set_time(30000)
-    sleep(1)
-    print("play 3")
-    player.play()
-    sleep(sleep_time)
-
-    player.set_time(40000)
-    print("play 4")
-    player.play()
-    sleep(sleep_time)
-    player.pause()
+    #playing video fixed with pos 462155 and end_time 465667
+    for i in range(100):
+        player.play()
+        player.set_time(455000)
+        sleep(15)
+        print(player.get_time())
+        player.pause()
+        sleep(1)
+        player.set_time(232833)
+        player.play()
+        print(player.get_time())
+        sleep(20)
 
 def main():
     #user arguments
@@ -88,6 +75,7 @@ def main():
     video_player.init_rate_pos(args.rate, args.starting_pos)
 
     # testrun(video_player, 3)
+    # return
 
     #get playback rate from arguments
     errmsg = YRefParam()
@@ -122,9 +110,7 @@ def main():
     except Exception as e:
         print('exception caught')
         print(e)
-        YAPI.FreeAPI()
         video_player.stop()
-        # os.execv(sys.executable, ['python3'] + sys.argv)
 
     YAPI.FreeAPI()
 
