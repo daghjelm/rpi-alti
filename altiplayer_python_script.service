@@ -1,0 +1,12 @@
+[Unit]
+Description=Python Script Service
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /home/pi/Documents/rpi-alti/main.py -v="/home/pi/Desktop/3NY_PALMER.mp4" -k=True -t=True -p=5 -a="/home/pi/Desktop/DAG.mp3"
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target

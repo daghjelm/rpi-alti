@@ -34,3 +34,16 @@ Run the script with default values `python3 main/main.py --video_path=video.mp4`
 ## Documentation for apis
 vlc-python: https://www.olivieraubert.net/vlc/python-ctypes/doc/index.html https://github.com/oaubert/python-vlc
 yoctopuce: https://www.yoctopuce.com/EN/doc/reference/yoctolib-python-EN.html
+
+
+## Production
+Edit the startPlayer.desktop file with the apropriate file paths and arguments.
+Copy the desktop file to desktop ex:
+`cp startPlayer.desktop ~/Desktop/`
+
+If you want the script to auto restart with systemctl:
+* Edit the .service file with the proper arguments to the python script
+* Copy the .service file to /etc/systemd/system:
+`sudo cp altiplayer_python_script.service /etc/systemd/system/`
+* copy start player forever desktop file:
+`cp startPlayerForever.desktop ~/Desktop/`
