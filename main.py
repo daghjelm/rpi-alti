@@ -37,14 +37,19 @@ def add_args(parser):
                         help="set how much time we should leave in the video before the end", type=int)
     parser.add_argument("-i", "--interval", default=1,
                         help="set how much time we should leave in the video before the end", type=int)
-    parser.add_argument("-k", "--keycontrol", default=False, 
-                        help="decide if you can control direction with arrow keys", type=bool)
-    parser.add_argument("-t", "--stopping", default=True,
-                        help="decide if being still should mean full stop", type=bool)
-    parser.add_argument("-d", "--debug", default=True, 
-                        help="display debug logs", type=bool)
+
     parser.add_argument("-a", "--audio_path", default=DEFAULT_AUDIO_PATH, 
                         help="path to audio file", type=str)
+
+    #booleans 
+    parser.add_argument("-k", "--keycontrol", action=argparse.BooleanOptionalAction, default=False, 
+                        help="decide if you can control direction with arrow keys", type=bool)
+
+    parser.add_argument("-t", "--stopping", action=argparse.BooleanOptionalAction, default=False,
+                        help="decide if being still should mean full stop", type=bool)
+
+    parser.add_argument('-d', '--debug', action=argparse.BooleanOptionalAction, default=False, 
+                        help='print debug statements', type=bool)
 
 def testrun(player, sleep_time):
     #playing video fixed with pos 462155 and end_time 465667
