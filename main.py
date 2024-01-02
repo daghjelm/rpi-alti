@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 import os, sys, argparse 
+import vlc
 from time import sleep
 from pathlib import Path
 
@@ -9,7 +10,7 @@ from yoctopuce.yocto_api import YAPI, YRefParam
 from yoctopuce.yocto_altitude import YAltitude
 
 import altiplayer
-import mediaplayer 
+import vlc
 
 # sys.path.append(os.path.join("..", "..", "Sources"))
 DEFAULT_VIDEO_PATH = Path("/home/computemodule/Desktop/UPP_NER_2.mp4")
@@ -37,7 +38,7 @@ def add_args(parser):
                         help="set how much time we should leave in the video before the end", type=int)
     parser.add_argument("-k", "--keycontrol", default=False, 
                         help="decide if you can control direction with arrow keys", type=bool)
-    parser.add_argument("-t", "--stopping", default=False,
+    parser.add_argument("-t", "--stopping", default=True,
                         help="decide if being still should mean full stop", type=bool)
     parser.add_argument("-f", "--fraction", default=False, 
                         help="decide if start time should be a fraction (1/4) of entire vid", type=bool)
@@ -59,6 +60,45 @@ def testrun(player, sleep_time):
         player.play()
         print(player.get_time())
         sleep(20)
+    
+
+def init_video_player(path: str, rate: float, starting_pos: int):
+    instance = vlc.Instance()
+    if instance is None:
+        raise Exception('instance is None')
+    video_player = instance.media_player_new(path)
+    video_player.set_fullscreen(True)
+    video_player.play()
+    sleep(1)
+    video_player.pause()
+
+    starting_pos *= 1000
+    
+    assert starting_pos < video_player.get_length()
+
+    video_player.play()
+    sleep(0.5)        
+    if rate != 1:
+        video_player.set_rate(rate)
+        sleep(0.5)        
+    video_player.set_time(starting_pos)
+    sleep(0.5)        
+    video_player.pause()
+
+    return video_player
+
+def init_audio_player(path: str):
+    instance = vlc.Instance()
+    if instance is None:
+        raise Exception('instance is None')
+    media_list = instance.media_list_new()
+    media_list.add_media(path)
+
+    audio_player = instance.media_list_player_new()
+    audio_player.set_media_list(media_list)
+    audio_player.set_playback_mode(vlc.PlaybackMode(1))
+
+    return audio_player
 
 def main():
     #user arguments
@@ -69,23 +109,9 @@ def main():
 
     assert args.margin <= args.starting_pos
 
-    # instance = vlc.Instance("--input-fast-seek", "--no-xlib", "--vout=mmal_vout)
-
-    video_player = mediaplayer.VLCPlayer(args.video_path)
-    audio_player = mediaplayer.AudioPlayer(args.audio_path)
-    audio_player.play()
-
-    args.starting_pos *= 1000
-    if args.fraction:
-        print(video_player.get_length())
-        args.starting_pos = video_player.get_length() // 4
-    
-    assert args.starting_pos < video_player.get_length()
-
-    video_player.init_rate_pos(args.rate, args.starting_pos)
-
-    # testrun(video_player, 3)
-    # return
+    #init video and audio vlc players
+    video_player = init_video_player(args.video_path, args.rate, args.starting_pos)
+    audio_player = init_audio_player(args.audio_path)
 
     #get playback rate from arguments
     errmsg = YRefParam()
@@ -117,6 +143,7 @@ def main():
 
     try:
         alti_player.run()
+        audio_player.play()
     except Exception as e:
         print('exception caught')
         print(e)

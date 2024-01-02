@@ -1,13 +1,12 @@
 from time import sleep
 from yoctopuce.yocto_api import YAPI
 from yoctopuce.yocto_altitude import YAltitude
-from mediaplayer import MediaPlayer
 import threading
 
 class AltiPlayer():
     def __init__(
         self, 
-        player: MediaPlayer,
+        player,
         sensor: YAltitude,
         margin: int,
         play_time: int,
@@ -33,9 +32,6 @@ class AltiPlayer():
         self.full_time: int = player.get_length()
         self.half_time: int = self.full_time // 2
     
-    # def get_adjusted_duration(self, pos, duration):
-    #     return duration + (1 - pos % 1)
-
     def log(self, *args):
         if self.debug:
             print(*args)
