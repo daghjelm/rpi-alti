@@ -24,6 +24,7 @@ def tilde_path(pathstr):
 def die(msg):
    sys.exit(msg + ' (check USB cable)')
 
+#all inputs are in whole seconds
 def add_args(parser):
     parser.add_argument("-v", "--video_path", default=DEFAULT_VIDEO_PATH, help='path to the video that is to be played', type=str)
     parser.add_argument("-r", "--rate", default=1,
@@ -40,8 +41,6 @@ def add_args(parser):
                         help="decide if you can control direction with arrow keys", type=bool)
     parser.add_argument("-t", "--stopping", default=True,
                         help="decide if being still should mean full stop", type=bool)
-    parser.add_argument("-f", "--fraction", default=False, 
-                        help="decide if start time should be a fraction (1/4) of entire vid", type=bool)
     parser.add_argument("-d", "--debug", default=True, 
                         help="display debug logs", type=bool)
     parser.add_argument("-a", "--audio_path", default=DEFAULT_AUDIO_PATH, 
@@ -60,7 +59,6 @@ def testrun(player, sleep_time):
         player.play()
         print(player.get_time())
         sleep(20)
-    
 
 def init_video_player(path: str, rate: float, starting_pos: int):
     instance = vlc.Instance()
@@ -74,7 +72,7 @@ def init_video_player(path: str, rate: float, starting_pos: int):
 
     starting_pos *= 1000
     
-    assert starting_pos < video_player.get_length()
+    assert starting_pos < video_player.get_length() 
 
     video_player.play()
     sleep(0.5)        
@@ -82,8 +80,9 @@ def init_video_player(path: str, rate: float, starting_pos: int):
         video_player.set_rate(rate)
         sleep(0.5)        
     video_player.set_time(starting_pos)
-    sleep(0.5)        
+    sleep(1)        
     video_player.pause()
+    sleep(1)        
 
     return video_player
 
@@ -106,8 +105,6 @@ def main():
     add_args(parser)
 
     args = parser.parse_args()
-
-    assert args.margin <= args.starting_pos
 
     #init video and audio vlc players
     video_player = init_video_player(args.video_path, args.rate, args.starting_pos)
@@ -132,13 +129,14 @@ def main():
     altSensor = YAltitude.FindAltitude(target + '.altitude')
 
     alti_player = altiplayer.AltiPlayer(
-        video_player,
-        altSensor,
-        args.margin,
-        args.play_time,
-        args.interval,
+        player=video_player,
+        sensor=altSensor,
+        margin=args.margin,
+        play_time=args.play_time,
+        interval=args.interval,
         keycontrol=args.keycontrol,
-        stopping=args.stopping
+        stopping=args.stopping,
+        debug=args.debug,
     )
 
     try:

@@ -29,7 +29,7 @@ class AltiPlayer():
 
         self.paused = True 
 
-        self.full_time: int = player.get_length()
+        self.full_time: int = player.get_length() - (margin * 1000)
         self.half_time: int = self.full_time // 2
     
     def log(self, *args):
@@ -49,8 +49,7 @@ class AltiPlayer():
         self.log('sleep1:', sleep1, 'sleep2:', sleep2)
 
     def play_video_fixed(self, pos, up):
-        #vlc stops if you play past end of video, so we add a margin
-        end_time = self.half_time if up else (self.full_time - self.margin) 
+        end_time = self.half_time if up else self.full_time
         start_time = 0 if up else self.half_time
         plays_past_end = pos + self.play_time >= end_time
 
@@ -61,6 +60,8 @@ class AltiPlayer():
         if not self.stopping:
             self.player.set_rate(1)
         if plays_past_end:
+            if not self.player.is_playing():
+                self.player.play()
             self.play_and_loop(pos, end_time, start_time)
         else:
             self.player.play()
@@ -127,7 +128,6 @@ class AltiPlayer():
             self.player.stop()
             self.log("quiting")
             exit() 
-
 
     def listen_for_input(self):
         while True:
