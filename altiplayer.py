@@ -5,6 +5,7 @@ import threading
 import os
 
 class AltiPlayer():
+    EXTRA_TIME_FOR_BLACK_SCREEN = 1000  # milliseconds
 
     def __init__(
         self, 
@@ -35,10 +36,10 @@ class AltiPlayer():
         self.pos_before_blank = 0
         self.still_start = 0
 
-        self.last_move = "moving"
-        self.curr_move = "moving"
+        self.last_moving = True
+        self.curr_moving = True
 
-        # video has 10 s (or what margin says) of black screen at the end
+        # video has margin s of black screen at the end
         # this is to avoid going passed the end of the video and quitting vlc
         # the black part is also used for blanking
         self.full_time: int = player.get_length() - (margin * 1000)
@@ -54,11 +55,9 @@ class AltiPlayer():
         remaining_time = self.play_time - time_to_end
         self.log('playing and looping with pos:', pos, 'end_time:', end_time, 'start_time:', start_time)
         self.log('remaining_time:', remaining_time, 'time_to_end:', time_to_end, 'play_time:', self.play_time)
-        sleep1 = YAPI.Sleep(time_to_end)
+        YAPI.Sleep(time_to_end)
         self.player.set_time(start_time)
-        self.log('set time to', start_time)
-        sleep2 = YAPI.Sleep(remaining_time)
-        self.log('sleep1:', sleep1, 'sleep2:', sleep2)
+        YAPI.Sleep(remaining_time)
 
     def play_video_fixed(self, pos, up):
         end_time = self.half_time if up else self.full_time
@@ -97,12 +96,14 @@ class AltiPlayer():
                             (going_down and pos < self.half_time)
 
         if going_up or going_down:
-            self.blanked = False
-            self.last_move = self.curr_move
-            self.curr_move = "moving"
-            if changed_direction:
+            self.last_moving = self.curr_moving
+            self.curr_moving = True
+            if self.blanked:
+                self.player.set_time(pos)
+            elif changed_direction:
                 pos = self.full_time - pos
                 self.player.set_time(pos)
+            self.blanked = False
             try:
                 self.play_video_fixed(pos, going_up)
             except Exception as e:
@@ -122,10 +123,10 @@ class AltiPlayer():
         if self.blanked:
             return
 
-        self.last_move = self.curr_move
-        self.curr_move = "still"
+        self.last_moving = self.curr_moving
+        self.curr_moving = False
 
-        if self.last_move != self.curr_move:
+        if self.last_moving != self.curr_moving:
             self.still_start = time()
         time_still = time() - self.still_start
 
@@ -142,9 +143,9 @@ class AltiPlayer():
     def blank(self):
         #last 10 s of the video is black screen so add 1 s to full time 
         #to end up in the black screen
-        self.player.set_time(self.full_time + 1000)
-        self.blanked = True
         self.pos_before_blank = self.player.get_time()
+        self.player.set_time(self.full_time + AltiPlayer.EXTRA_TIME_FOR_BLACK_SCREEN)
+        self.blanked = True
         if self.player.is_playing():
             self.player.pause()
     
