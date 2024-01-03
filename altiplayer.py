@@ -1,9 +1,12 @@
-from time import sleep
+from time import sleep, time_ns, time
 from yoctopuce.yocto_api import YAPI
 from yoctopuce.yocto_altitude import YAltitude
 import threading
+import os
 
 class AltiPlayer():
+    EXTRA_TIME_FOR_BLACK_SCREEN = 1000  # milliseconds
+
     def __init__(
         self, 
         player,
@@ -13,7 +16,8 @@ class AltiPlayer():
         interval: float,
         stopping: bool = False,
         keycontrol: bool = False,
-        debug: bool = True
+        debug: bool = True,
+        time_to_blank: int = 20
     ):
         self.player = player
         self.sensor = sensor
@@ -23,12 +27,21 @@ class AltiPlayer():
         self.stopping = stopping
         self.keycontrol = keycontrol
         self.debug = debug
+        self.time_to_blank = time_to_blank
 
         self.pressing_up = False
         self.pressing_down = False
 
-        self.paused = True 
+        self.blanked = False
+        self.pos_before_blank = 0
+        self.still_start = 0
 
+        self.last_moving = True
+        self.curr_moving = True
+
+        # video has margin s of black screen at the end
+        # this is to avoid going passed the end of the video and quitting vlc
+        # the black part is also used for blanking
         self.full_time: int = player.get_length() - (margin * 1000)
         self.half_time: int = self.full_time // 2
     
@@ -42,11 +55,9 @@ class AltiPlayer():
         remaining_time = self.play_time - time_to_end
         self.log('playing and looping with pos:', pos, 'end_time:', end_time, 'start_time:', start_time)
         self.log('remaining_time:', remaining_time, 'time_to_end:', time_to_end, 'play_time:', self.play_time)
-        sleep1 = YAPI.Sleep(time_to_end)
+        YAPI.Sleep(time_to_end)
         self.player.set_time(start_time)
-        self.log('set time to', start_time)
-        sleep2 = YAPI.Sleep(remaining_time)
-        self.log('sleep1:', sleep1, 'sleep2:', sleep2)
+        YAPI.Sleep(remaining_time)
 
     def play_video_fixed(self, pos, up):
         end_time = self.half_time if up else self.full_time
@@ -68,7 +79,8 @@ class AltiPlayer():
             YAPI.Sleep(self.play_time)
         
     def calc_dir_and_play(self, prev, diff):
-        pos = self.player.get_time()
+        pos = self.get_correct_pos()
+        self.log("pos", pos)
         current = self.sensor.get_currentValue()
 
         going_up = current - prev > diff or self.pressing_up
@@ -84,22 +96,59 @@ class AltiPlayer():
                             (going_down and pos < self.half_time)
 
         if going_up or going_down:
-            if changed_direction:
-                pos = self.full_time - pos
+            self.update_motion_state(True)
+            if self.blanked:
                 self.player.set_time(pos)
+            if changed_direction:
+                pos = self.full_time - pos 
+                self.player.set_time(pos)
+            self.blanked = False
             try:
                 self.play_video_fixed(pos, going_up)
             except Exception as e:
                 self.log(e)
-        #sensor is still
-        else:
-            assert direction == "still"
-            if self.stopping:
-                if self.player.is_playing():
-                    self.player.pause()
-            elif not (self.player.get_rate() == 0.25):
-                self.player.set_rate(0.25)
-            self.log('still and is playing?', self.player.is_playing())
+        else: # sensor is still
+            self.handle_still()
+    
+    # if the screen is blanked, pos should be the last pos before blanking
+    def get_correct_pos(self):
+        if self.blanked:
+            return self.pos_before_blank
+        return self.player.get_time()
+    
+    def update_motion_state(self, is_moving):
+        self.last_moving = self.curr_moving
+        self.curr_moving = is_moving 
+    
+    #being still means handling extra logic for blanking and stopping
+    def handle_still(self):
+        if self.blanked:
+            return
+
+        self.update_motion_state(False)
+
+        if self.last_moving != self.curr_moving:
+            self.still_start = time()
+        time_still = time() - self.still_start
+
+        # if we've been still for more than time_to_blank, blank screen
+        if time_still >= self.time_to_blank:
+            self.blank()
+        if self.stopping:
+            if self.player.is_playing():
+                self.player.pause()
+        elif not (self.player.get_rate() == 0.25) and not self.blanked:
+            self.player.set_rate(0.25)
+        self.log('still and is playing?', self.player.is_playing())
+    
+    def blank(self):
+        #last 10 s of the video is black screen so add 1 s to full time 
+        #to end up in the black screen
+        self.pos_before_blank = self.player.get_time()
+        self.player.set_time(self.full_time + AltiPlayer.EXTRA_TIME_FOR_BLACK_SCREEN)
+        self.blanked = True
+        if self.player.is_playing():
+            self.player.pause()
     
     def on_input(self, input):
         if input == "u":
