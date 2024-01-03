@@ -147,8 +147,8 @@ def main():
     )
 
     try:
-        alti_player.run()
         audio_player.play()
+        alti_player.run()
     except Exception as e:
         print('exception caught')
         print(e)
