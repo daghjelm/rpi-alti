@@ -96,12 +96,11 @@ class AltiPlayer():
                             (going_down and pos < self.half_time)
 
         if going_up or going_down:
-            self.last_moving = self.curr_moving
-            self.curr_moving = True
+            self.update_motion_state(True)
             if self.blanked:
                 self.player.set_time(pos)
-            elif changed_direction:
-                pos = self.full_time - pos
+            if changed_direction:
+                pos = self.full_time - pos 
                 self.player.set_time(pos)
             self.blanked = False
             try:
@@ -114,17 +113,19 @@ class AltiPlayer():
     # if the screen is blanked, pos should be the last pos before blanking
     def get_correct_pos(self):
         if self.blanked:
-            self.log('position before blank:', self.pos_before_blank)
             return self.pos_before_blank
         return self.player.get_time()
+    
+    def update_motion_state(self, is_moving):
+        self.last_moving = self.curr_moving
+        self.curr_moving = is_moving 
     
     #being still means handling extra logic for blanking and stopping
     def handle_still(self):
         if self.blanked:
             return
 
-        self.last_moving = self.curr_moving
-        self.curr_moving = False
+        self.update_motion_state(False)
 
         if self.last_moving != self.curr_moving:
             self.still_start = time()
