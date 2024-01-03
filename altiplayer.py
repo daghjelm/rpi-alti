@@ -1,9 +1,11 @@
-from time import sleep
+from time import sleep, time_ns, time
 from yoctopuce.yocto_api import YAPI
 from yoctopuce.yocto_altitude import YAltitude
 import threading
+import os
 
 class AltiPlayer():
+
     def __init__(
         self, 
         player,
@@ -13,7 +15,8 @@ class AltiPlayer():
         interval: float,
         stopping: bool = False,
         keycontrol: bool = False,
-        debug: bool = True
+        debug: bool = True,
+        time_to_blank: int = 20
     ):
         self.player = player
         self.sensor = sensor
@@ -23,12 +26,21 @@ class AltiPlayer():
         self.stopping = stopping
         self.keycontrol = keycontrol
         self.debug = debug
+        self.time_to_blank = time_to_blank
 
         self.pressing_up = False
         self.pressing_down = False
 
-        self.paused = True 
+        self.blanked = False
+        self.pos_before_blank = 0
+        self.still_start = 0
 
+        self.last_move = "moving"
+        self.curr_move = "moving"
+
+        # video has 10 s (or what margin says) of black screen at the end
+        # this is to avoid going passed the end of the video and quitting vlc
+        # the black part is also used for blanking
         self.full_time: int = player.get_length() - (margin * 1000)
         self.half_time: int = self.full_time // 2
     
@@ -68,7 +80,8 @@ class AltiPlayer():
             YAPI.Sleep(self.play_time)
         
     def calc_dir_and_play(self, prev, diff):
-        pos = self.player.get_time()
+        pos = self.get_correct_pos()
+        self.log("pos", pos)
         current = self.sensor.get_currentValue()
 
         going_up = current - prev > diff or self.pressing_up
@@ -84,6 +97,9 @@ class AltiPlayer():
                             (going_down and pos < self.half_time)
 
         if going_up or going_down:
+            self.blanked = False
+            self.last_move = self.curr_move
+            self.curr_move = "moving"
             if changed_direction:
                 pos = self.full_time - pos
                 self.player.set_time(pos)
@@ -91,15 +107,46 @@ class AltiPlayer():
                 self.play_video_fixed(pos, going_up)
             except Exception as e:
                 self.log(e)
-        #sensor is still
-        else:
-            assert direction == "still"
-            if self.stopping:
-                if self.player.is_playing():
-                    self.player.pause()
-            elif not (self.player.get_rate() == 0.25):
-                self.player.set_rate(0.25)
-            self.log('still and is playing?', self.player.is_playing())
+        else: # sensor is still
+            self.handle_still()
+    
+    # if the screen is blanked, pos should be the last pos before blanking
+    def get_correct_pos(self):
+        if self.blanked:
+            self.log('position before blank:', self.pos_before_blank)
+            return self.pos_before_blank
+        return self.player.get_time()
+    
+    #being still means handling extra logic for blanking and stopping
+    def handle_still(self):
+        if self.blanked:
+            return
+
+        self.last_move = self.curr_move
+        self.curr_move = "still"
+
+        if self.last_move != self.curr_move:
+            self.still_start = time()
+        time_still = time() - self.still_start
+
+        # if we've been still for more than time_to_blank, blank screen
+        if time_still >= self.time_to_blank:
+            self.blank()
+        if self.stopping:
+            if self.player.is_playing():
+                self.player.pause()
+        elif not (self.player.get_rate() == 0.25) and not self.blanked:
+            self.player.set_rate(0.25)
+        self.log('still and is playing?', self.player.is_playing())
+    
+    def blank(self):
+        #last 10 s of the video is black screen so add 1 s to full time 
+        #to end up in the black screen
+        self.player.set_time(self.full_time + 1000)
+        self.blanked = True
+        self.pos_before_blank = self.player.get_time()
+        if self.player.is_playing():
+            self.player.pause()
     
     def on_input(self, input):
         if input == "u":

@@ -37,7 +37,8 @@ def add_args(parser):
                         help="set how much time we should leave in the video before the end", type=int)
     parser.add_argument("-i", "--interval", default=1,
                         help="set how much time we should leave in the video before the end", type=int)
-
+    parser.add_argument("-b", "--time_to_blank", default=10,
+                        help="how long should the video be paused before blanking", type=int)
     parser.add_argument("-a", "--audio_path", default=DEFAULT_AUDIO_PATH, 
                         help="path to audio file", type=str)
 
@@ -142,6 +143,7 @@ def main():
         keycontrol=args.keycontrol,
         stopping=args.stopping,
         debug=args.debug,
+        time_to_blank=args.time_to_blank,
     )
 
     try:
