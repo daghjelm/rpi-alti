@@ -35,8 +35,10 @@ def add_args(parser):
                         help="set how long the video is to be played before checking for movement again", type=int)
     parser.add_argument("-m", "--margin", default=10,
                         help="set how much time we should leave in the video before the end", type=int)
-    parser.add_argument("-i", "--interval", default=1,
-                        help="set how much time we should leave in the video before the end", type=int)
+    parser.add_argument("-i", "--interval", default=0.5,
+                        help="how long we should wait between checking sensor values", type=float)
+    parser.add_argument("--diff", default=0.5,
+                        help="what should be the cutoff in sensor value", type=float)
     parser.add_argument("-b", "--time_to_blank", default=10,
                         help="how long should the video be paused before blanking", type=int)
     parser.add_argument("-a", "--audio_path", default=DEFAULT_AUDIO_PATH, 

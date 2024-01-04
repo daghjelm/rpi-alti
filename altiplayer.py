@@ -14,16 +14,20 @@ class AltiPlayer():
         margin: int,
         play_time: int,
         interval: float,
+
+        diff: float = 0.5,
         stopping: bool = False,
         keycontrol: bool = False,
         debug: bool = True,
-        time_to_blank: int = 20
+        time_to_blank: int = 20,
     ):
         self.player = player
         self.sensor = sensor
         self.margin = margin * 1000 #need margin in ms
         self.play_time = play_time * 1000 #as ms
         self.interval = interval
+        self.diff = diff
+
         self.stopping = stopping
         self.keycontrol = keycontrol
         self.debug = debug
@@ -34,7 +38,7 @@ class AltiPlayer():
 
         self.blanked = False
         self.pos_before_blank = 0
-        self.still_start = 0
+        self.still_start = time()
 
         self.last_moving = True
         self.curr_moving = True
@@ -78,13 +82,13 @@ class AltiPlayer():
             self.player.play()
             YAPI.Sleep(self.play_time)
         
-    def calc_dir_and_play(self, prev, diff):
+    def calc_dir_and_play(self, prev):
         pos = self.get_correct_pos()
         self.log("pos", pos)
         current = self.sensor.get_currentValue()
 
-        going_up = current - prev > diff or self.pressing_up
-        going_down = current - prev < -diff or self.pressing_down
+        going_up = current - prev > self.diff or self.pressing_up
+        going_down = current - prev < -self.diff or self.pressing_down
 
         direction = "up" if going_up else "down" if going_down else "still"
         self.log("direction", direction)
@@ -185,8 +189,6 @@ class AltiPlayer():
             self.log(f"You entered: {user_input}")
 
     def run(self):
-        diff = 0.6
-
         if self.keycontrol:
             input_thread = threading.Thread(target=self.listen_for_input)
             input_thread.start()
@@ -195,6 +197,6 @@ class AltiPlayer():
         prev = self.sensor.get_currentValue()
 
         while self.sensor.isOnline():
-            self.calc_dir_and_play(prev, diff)
+            self.calc_dir_and_play(prev)
             prev = self.sensor.get_currentValue()
             sleep(self.interval)
