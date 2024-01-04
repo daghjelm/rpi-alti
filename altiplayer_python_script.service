@@ -1,12 +1,15 @@
 [Unit]
-Description=Python Script Service
-After=network.target
+Description=Rpi alti: python, vlc, yoctopuce altimeter program
 
 [Service]
-Type=simple
-ExecStart=/usr/bin/python3 /home/pi/Documents/rpi-alti/main.py -v="/home/pi/Desktop/3NY_PALMER.mp4" -k=True -t=True -p=5 -a="/home/pi/Desktop/DAG.mp3"
+Environment="DISPLAY=:0"
+Environment="XDG_RUNTIME_DIR=/run/user/1000"
+#change this on computemodule
+User=pi
+#change this on computemodule
+ExecStart=/home/pi/Documents/rpi-alti/run.sh
 Restart=on-failure
-RestartSec=5s
+RestartSec=5
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=graphical.target
