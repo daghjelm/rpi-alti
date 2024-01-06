@@ -6,7 +6,7 @@ import os
 
 class AltiPlayer():
     EXTRA_TIME_FOR_BLACK_SCREEN = 1000  # milliseconds
-    LOOP_MARGIN = 150  # milliseconds
+    LOOP_MARGIN = 150 # milliseconds
 
     def __init__(
         self, 
@@ -61,7 +61,9 @@ class AltiPlayer():
         self.log('playing and looping with pos:', pos, 'end_time:', end_time, 'start_time:', start_time)
         self.log('remaining_time:', remaining_time, 'time_to_end:', time_to_end, 'play_time:', self.play_time)
         YAPI.Sleep(time_to_end)
+        self.player.pause()
         self.player.set_time(start_time)
+        self.player.play()
         YAPI.Sleep(remaining_time)
 
     def play_video_fixed(self, pos, up):
