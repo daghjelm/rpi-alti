@@ -1,3 +1,4 @@
+#!/bin/sh
 # Define the base paths as variables
 BASE_DIR="/home/computemodule"
 DOCUMENTS_DIR="${BASE_DIR}/Documents"
@@ -10,4 +11,4 @@ export DISPLAY=:0
 
 # Run the Python script with arguments
 #python3 "${RPI_ALTI_DIR}/main.py" -v="${RPI_MOVIES_DIR}/5NY_EKAR.mp4" -a="${RPI_SOUNDS_DIR}/EK.wav" -s=20 -t -p=5 -b=600 --diff=0.7 -i=1 -k -d
-python3 "${RPI_ALTI_DIR}/main.py" -v="${RPI_MOVIES_DIR}/5NY_EKAR.mp4" -a="${RPI_SOUNDS_DIR}/EK.wav" -s=20 -t -p=5 -b=600 --diff=0.7 -i=1
+/usr/bin/python3 "${RPI_ALTI_DIR}/main.py" -v="${RPI_MOVIES_DIR}/5NY_EKAR.mp4" -a="${RPI_SOUNDS_DIR}/EK.wav" -s=20 -t -p=5 -b=600 --diff=0.7 -i=1
