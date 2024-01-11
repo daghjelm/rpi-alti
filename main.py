@@ -54,6 +54,9 @@ def add_args(parser):
     parser.add_argument('-d', '--debug', action=argparse.BooleanOptionalAction, default=False, 
                         help='print debug statements', type=bool)
 
+    parser.add_argument('--half_start', action=argparse.BooleanOptionalAction, default=False, 
+                        help='start at half time', type=bool)
+
 def testrun(player, sleep_time):
     #playing video fixed with pos 462155 and end_time 465667
     for i in range(100):
@@ -68,7 +71,7 @@ def testrun(player, sleep_time):
         print(player.get_time())
         sleep(20)
 
-def init_video_player(path: str, rate: float, starting_pos: int):
+def init_video_player(path: str, rate: float, starting_pos: int, half_start=False):
     instance = vlc.Instance()
     if instance is None:
         raise Exception('instance is None')
@@ -87,7 +90,12 @@ def init_video_player(path: str, rate: float, starting_pos: int):
     if rate != 1:
         video_player.set_rate(rate)
         sleep(0.5)        
-    video_player.set_time(starting_pos)
+
+    if half_start:
+        full_time = video_player.get_length()
+        video_player.set_time(full_time // 4)
+    else:
+        video_player.set_time(starting_pos)
     sleep(1)        
     video_player.pause()
     sleep(1)        
@@ -115,7 +123,7 @@ def main():
     args = parser.parse_args()
 
     #init video and audio vlc players
-    video_player = init_video_player(args.video_path, args.rate, args.starting_pos)
+    video_player = init_video_player(args.video_path, args.rate, args.starting_pos, args.half_start)
     audio_player = init_audio_player(args.audio_path)
 
     #get playback rate from arguments
