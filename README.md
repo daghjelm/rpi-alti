@@ -31,10 +31,19 @@ Save and restart the pi: `sudo reboot`
 
 Run the script with default values `python3 main/main.py --video_path=video.mp4`
 
+## Run the scrip with bash script
+Fill in the appriate paths in run.sh 
+Make run.sh executable `sudo chmod +x run.sh`
+Run the program with `./run.sh`
+
+## Systemd service
+I'm running the programs as systemd services in raspberry pi OS buster
+If you want to do this yourself, you can copy the example service file "alti-player.service" to systemd
+`sudo cp alti-player.service /etc/systemd/system/`
+
 ## Documentation for apis
 vlc-python: https://www.olivieraubert.net/vlc/python-ctypes/doc/index.html https://github.com/oaubert/python-vlc
 yoctopuce: https://www.yoctopuce.com/EN/doc/reference/yoctolib-python-EN.html
-
 
 ## Production
 Edit the startPlayer.desktop file with the apropriate file paths and arguments.
