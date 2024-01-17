@@ -34,7 +34,7 @@ Save and restart the pi: `sudo reboot`
 
 Run the script with default values `python3 main/main.py --video_path=video.mp4`
 
-## Run the scrip with bash script
+## Run the script with the bash run script
 Fill in the appriate paths in run.sh 
 Make run.sh executable `sudo chmod +x run.sh`
 Run the program with `./run.sh`
