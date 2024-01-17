@@ -1,9 +1,0 @@
-[Desktop Entry]
-Version=1.0
-Name=Start rpialti player with restart
-Comment=Start rpialti player with restart
-Exec=pkexec systemctl start altiplayer_python_script.service
-Icon=system-run
-Terminal=false
-Type=Application
-Categories=Utility;

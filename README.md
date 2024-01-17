@@ -4,9 +4,12 @@ A program that meassures altitude using the yoctopuce altitude sensor and plays 
 
 ## How to run
 
+These instructions are for running the program on raspberry pi os Buster.
+Similar should work for other linux distros but is not tested.
+
 Assuming to you have python3 installed.
 
-Install vlc, for raspbian: `apt-get install vlc`
+Install vlc, for raspberry pi os: `apt-get install vlc`
 
 I recommend to create a venv:
 Create a venv with `python3 -m venv .venv`, and source `source path/to/.venv`
@@ -44,15 +47,3 @@ If you want to do this yourself, you can copy the example service file "alti-pla
 ## Documentation for apis
 vlc-python: https://www.olivieraubert.net/vlc/python-ctypes/doc/index.html https://github.com/oaubert/python-vlc
 yoctopuce: https://www.yoctopuce.com/EN/doc/reference/yoctolib-python-EN.html
-
-## Production
-Edit the startPlayer.desktop file with the apropriate file paths and arguments.
-Copy the desktop file to desktop ex:
-`cp startPlayer.desktop ~/Desktop/`
-
-If you want the script to auto restart with systemctl:
-* Edit the .service file with the proper arguments to the python script
-* Copy the .service file to /etc/systemd/system:
-`sudo cp altiplayer_python_script.service /etc/systemd/system/`
-* copy start player forever desktop file:
-`cp startPlayerForever.desktop ~/Desktop/`

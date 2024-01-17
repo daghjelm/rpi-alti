@@ -16,7 +16,7 @@ class AltiPlayer():
         play_time: int,
         interval: float,
 
-        diff: float = 0.5,
+        diff: float = 0.2,
         stopping: bool = False,
         keycontrol: bool = False,
         debug: bool = True,
@@ -84,14 +84,22 @@ class AltiPlayer():
         else:
             self.player.play()
             YAPI.Sleep(self.play_time)
-        
-    def calc_dir_and_play(self, prev):
-        pos = self.get_correct_pos()
-        self.log("pos", pos)
-        current = self.sensor.get_currentValue()
+    
+    #current = most recent value
+    def is_going_up(self, current, prev):
+        return current - prev > self.diff or self.pressing_up
 
-        going_up = current - prev > self.diff or self.pressing_up
-        going_down = current - prev < -self.diff or self.pressing_down
+    #current = most recent value
+    def is_going_down(self, current, prev):
+        return current - prev < -self.diff or self.pressing_down
+    
+    def calc_dir_and_play(self, prev, prev2):
+        pos = self.get_correct_pos()
+        current = self.sensor.get_currentValue()
+        self.log("pos", "prev", "prev2", "current", pos, prev, prev2, current)
+
+        going_up = self.is_going_up(prev2, prev) and self.is_going_up(current, prev2)
+        going_down = self.is_going_down(prev2, prev) and self.is_going_down(current, prev2)
 
         direction = "up" if going_up else "down" if going_down else "still"
         self.log("direction", direction)
@@ -107,7 +115,7 @@ class AltiPlayer():
             if self.blanked:
                 self.player.set_time(pos)
             if changed_direction:
-                pos = self.full_time - pos 
+                pos = self.full_time - pos
                 self.player.set_time(pos)
             self.blanked = False
             try:
@@ -116,7 +124,7 @@ class AltiPlayer():
                 self.log(e)
         else: # sensor is still
             self.handle_still()
-    
+
     # if the screen is blanked, pos should be the last pos before blanking
     def get_correct_pos(self):
         if self.blanked:
@@ -198,8 +206,14 @@ class AltiPlayer():
 
         # Initial sensor value is first prev
         prev = self.sensor.get_currentValue()
+        prev2 = prev
+        interval = int(self.interval * 1000)
 
         while self.sensor.isOnline():
-            self.calc_dir_and_play(prev)
+            # we give two values so that the player triggers
+            # less often due to random variance in the altitude sensor
+            self.calc_dir_and_play(prev, prev2)
             prev = self.sensor.get_currentValue()
-            sleep(self.interval)
+            YAPI.Sleep(interval // 2)
+            prev2 = self.sensor.get_currentValue()
+            YAPI.Sleep(interval // 2)

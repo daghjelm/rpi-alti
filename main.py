@@ -57,20 +57,6 @@ def add_args(parser):
     parser.add_argument('--half_start', action=argparse.BooleanOptionalAction, default=False, 
                         help='start at half time', type=bool)
 
-def testrun(player, sleep_time):
-    #playing video fixed with pos 462155 and end_time 465667
-    for i in range(100):
-        player.play()
-        player.set_time(455000)
-        sleep(15)
-        print(player.get_time())
-        player.pause()
-        sleep(1)
-        player.set_time(232833)
-        player.play()
-        print(player.get_time())
-        sleep(20)
-
 def init_video_player(path: str, rate: float, starting_pos: int, half_start=False):
     instance = vlc.Instance()
     if instance is None:
@@ -143,7 +129,8 @@ def main():
     target = m.get_serialNumber()
 
     altSensor = YAltitude.FindAltitude(target + '.altitude')
-
+    
+    #alti sensor with values from args
     alti_player = altiplayer.AltiPlayer(
         player=video_player,
         sensor=altSensor,
@@ -154,6 +141,7 @@ def main():
         stopping=args.stopping,
         debug=args.debug,
         time_to_blank=args.time_to_blank,
+        diff=args.diff,
     )
 
     try:
